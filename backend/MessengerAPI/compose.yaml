@@ -1,0 +1,36 @@
+﻿services:
+  messengerweb:
+    image: messengerweb
+    build:
+      context: .
+      dockerfile: MessengerWeb/Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgresdb:
+        condition: service_healthy
+    networks:
+      - messenger-network
+      
+
+  postgresdb:
+    image: postgres:latest
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: danilaubelou 
+      POSTGRES_DB: MessengerDb
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin -d MessengerDb" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+    networks:
+      - messenger-network
+    
+networks:
+  messenger-network:
+    driver: bridge

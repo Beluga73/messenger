@@ -1,20 +1,47 @@
+using Azure.Storage.Blobs;
+using ColabBoard.Web.Extensions;
+using Messenger.Application;
+using Messenger.Application.Interfaces;
+using Messenger.Application.Services;
+using Messenger.Infrastructure.Data;
+using Messenger.Infrastructure.Data.Repositories;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddSingleton<HashingService>();
+builder.Services.AddScoped<AuthenticationService>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddSingleton<PhoneVerificationService>();
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddDbContext<MessengerDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("postgres")));
+builder.Services.AddSwaggerGen();
+builder.Services.Configure<TwillioSettings>(builder.Configuration.GetSection("TwilioConfiguration"));
+builder.Services.Configure<AuthSettings>(builder.Configuration.GetSection("AuthSettings"));
+builder.Services.AddAuth(builder.Configuration);
+builder.Services.AddSingleton(x =>
+    new BlobServiceClient(builder.Configuration.GetConnectionString("AzureBlobStorage")));
+builder.Services.AddSingleton<IBlobService, BlobService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+using (var scope = app.Services.CreateScope())
 {
-    app.MapOpenApi();
+    var db = scope.ServiceProvider.GetRequiredService<MessengerDbContext>();
+    db.Database.Migrate();
 }
 
-app.UseHttpsRedirection();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();   
+    app.UseSwaggerUI();   
+}
+
 
 app.UseAuthorization();
 

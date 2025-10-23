@@ -1,0 +1,42 @@
+**/appsettings.json
+# Build results
+bin/
+obj/
+out/
+TestResults/
+[Bb]uild[Ll]og.*
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# IDE settings
+.vs/
+.idea/
+.vscode/
+
+# NuGet
+*.nupkg
+packages/
+project.lock.json
+project.assets.json
+
+# Logs and temp
+*.log
+*.tmp
+*.temp
+*.bak
+
+# Auto-generated code
+Generated_Code/
+
+# Others
+*.dbmdl
+*.pdb
+*.mdb
+*.cache
+*.coverage
+*.coveragexml
+*.xml
