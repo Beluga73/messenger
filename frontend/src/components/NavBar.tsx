@@ -27,7 +27,7 @@ export const NavBar = () => {
   const currentPathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 z-10 left-0 h-12 w-full">
+    <nav className="absolute bottom-0 z-10 left-0 h-12 w-full border-t-1">
       <ul className="grid grid-cols-3 h-full">
         {navItems.map(({ href, image: Icon }) => (
           <li key={href}>
