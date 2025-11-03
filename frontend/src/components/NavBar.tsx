@@ -23,18 +23,22 @@ const navItems = [
   },
 ] as const;
 
-export const NavBar = () => {
+type NavBarProps = {
+  navClassName?: string;
+};
+
+export const NavBar = ({ navClassName }: NavBarProps) => {
   const currentPathname = usePathname();
 
   return (
-    <nav className="absolute bottom-0 z-10 left-0 h-12 w-full border-t-1">
-      <ul className="grid grid-cols-3 h-full">
+    <nav className={cn("w-full h-12 border-t-1", navClassName)}>
+      <ul className="flex w-full h-full">
         {navItems.map(({ href, image: Icon }) => (
-          <li key={href}>
+          <li key={href} className="flex-1">
             <Link
               href={href}
               className={cn(
-                "center-children w-full h-full",
+                "center-children h-full",
                 currentPathname === href && "text-primary"
               )}
             >
