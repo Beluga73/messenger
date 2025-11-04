@@ -9,11 +9,7 @@ public class User : BaseEntity
     
     public string? Status { get; set; }
     
-    [Required]
     public string Username { get; set; }
-    
-    [Required]
-    public string PasswordHash { get; set; }
     
     [Required]
     public string PhoneNumber { get; set; }

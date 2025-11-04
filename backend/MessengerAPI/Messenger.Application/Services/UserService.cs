@@ -4,25 +4,15 @@ using Messenger.Domain.Entities;
 
 namespace Messenger.Application.Services;
 
-public class UserService(IUserRepository usersRepository, HashingService hashingService, AuthenticationService authenticationService)
+public class UserService(IUserRepository usersRepository, AuthenticationService authenticationService)
 {
     public async Task<User> CreateUser(CreateUserDto userDto)
     {
         User user = new User()
         {
-            Username = userDto.Username,
             PhoneNumber = userDto.PhoneNumber,
-            
         };
         
-        if (await usersRepository.GetUserByUsernameAsync(user.Username) != null)
-        {
-            throw new Exception("Username already exists");
-        }
-        
-        var passwordhash = hashingService.HashPassword(userDto.Password);
-        user.PasswordHash = passwordhash;
-
         return await usersRepository.CreateUserAsync(user);
     }
     
