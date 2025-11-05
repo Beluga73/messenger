@@ -200,3 +200,9 @@
     letter-spacing: var(--tracking-normal);
   }
 }
+
+@layer utilities {
+  .center-children {
+    @apply flex justify-center items-center;
+  }
+}

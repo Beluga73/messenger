@@ -1,0 +1,52 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { MessagesSquare, Phone, Settings } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+const navItems = [
+  {
+    name: "/calls",
+    href: "/calls",
+    image: Phone,
+  },
+  {
+    name: "/chats",
+    href: "/chats",
+    image: MessagesSquare,
+  },
+  {
+    name: "/settings",
+    href: "/settings",
+    image: Settings,
+  },
+] as const;
+
+type NavBarProps = {
+  navClassName?: string;
+};
+
+export const NavBar = ({ navClassName }: NavBarProps) => {
+  const currentPathname = usePathname();
+
+  return (
+    <nav className={cn("w-full h-12 border-t-1", navClassName)}>
+      <ul className="flex w-full h-full">
+        {navItems.map(({ href, image: Icon }) => (
+          <li key={href} className="flex-1">
+            <Link
+              href={href}
+              className={cn(
+                "center-children h-full",
+                currentPathname === href && "text-primary"
+              )}
+            >
+              <Icon className="size-6" />
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+};
