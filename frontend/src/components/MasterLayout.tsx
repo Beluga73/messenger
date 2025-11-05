@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useMobileLayout } from "@/hooks/useMobile";
 import { NavBar } from "./NavBar";
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 
 type MasterLayoutProps = {
   LeftPanel: ReactNode;
