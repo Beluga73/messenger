@@ -13,7 +13,7 @@ public class AuthController(PhoneVerificationService verification, UserService u
 {
     [HttpPost]
     [Route("register/initiate")]
-    public async Task<IActionResult> RegisterInitiate([FromForm] string phoneNumber)
+    public IActionResult RegisterInitiate([FromForm] string phoneNumber)
     {
         try
         {
