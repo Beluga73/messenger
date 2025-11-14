@@ -1,9 +1,9 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useMobileLayout } from "@/hooks/useMobile";
+import { useMobileLayout } from "@/shared/hooks/useMobile";
 import { NavBar } from "./NavBar";
-import { useEffect, type ReactNode } from "react";
+import type { ReactNode } from "react";
 
 type MasterLayoutProps = {
   LeftPanel: ReactNode;

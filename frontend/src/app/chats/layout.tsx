@@ -1,5 +1,5 @@
 import { headers } from "next/headers";
-import { MasterLayout } from "@/components/MasterLayout";
+import { MasterLayout } from "@/shared/components/layout/MasterLayout";
 
 export default async function Layout({
   children,

@@ -1,4 +1,4 @@
-import { FunnyGuys } from "@/components/FunnyGuys";
+import { FunnyGuys } from "@/shared/components/FunnyGuys";
 
 export default function Page() {
   return (
