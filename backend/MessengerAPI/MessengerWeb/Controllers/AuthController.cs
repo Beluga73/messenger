@@ -28,8 +28,9 @@ public class AuthController(PhoneVerificationService verification, UserService u
     
     [HttpPost]
     [Route("register/verify")]
-    public async Task<IActionResult> RegisterVerify([FromForm] CreateUserDto userDto)
+    public async Task<IActionResult> RegisterVerify([FromForm] string code,[FromForm] string phoneNumber)
     {
+        var userDto = new CreateUserDto(phoneNumber, code);
         try
         {
             var result =  verification.VerifyCode(userDto.PhoneNumber, userDto.Code);
