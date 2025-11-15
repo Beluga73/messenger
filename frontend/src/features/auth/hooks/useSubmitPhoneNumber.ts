@@ -3,9 +3,8 @@ import { sendPhoneNumber } from "../lib/sendPhoneNumber";
 
 export const useSubmitPhoneNumber = (
   options?: UseMutationOptions<unknown, Error, string, unknown>
-) => {
-  return useMutation({
+) =>
+  useMutation({
     mutationFn: sendPhoneNumber,
     ...options,
   });
-};

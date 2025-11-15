@@ -19,11 +19,13 @@ import {
   type PhoneNumber,
 } from "libphonenumber-js";
 import { useSubmitPhoneNumber } from "../hooks/useSubmitPhoneNumber";
-import { useRegisterStep } from "../hooks/useRegisterStep";
+import { useRegisterStepStore } from "../hooks/useRegisterStepStore";
+import { usePhoneNumberStore } from "../hooks/usePhoneNumberStore";
 import { Phone } from "lucide-react";
 
-export default function RegisterForm() {
-  const { setStep } = useRegisterStep();
+export const RegisterForm = () => {
+  const { setStep } = useRegisterStepStore();
+  const { setPhoneNumber } = usePhoneNumberStore();
   const { mutateAsync, isPending } = useSubmitPhoneNumber({});
   const [nationalNumber, setNationalNumber] = useState("");
   const [callingCode, setCallingCode] = useState<CountryCallingCode>(
@@ -40,6 +42,10 @@ export default function RegisterForm() {
       phoneNumberObject = parsePhoneNumberWithError(
         `+${callingCode}${nationalNumber}`
       );
+      if (!phoneNumberObject.isValid()) {
+        setError(new Error("Enter a valid phone number!"));
+        return;
+      }
     } catch (err) {
       if (err instanceof ParseError) {
         if (err.message.includes("TOO_SHORT")) {
@@ -57,10 +63,11 @@ export default function RegisterForm() {
 
     // Making network request
     try {
-      await mutateAsync(phoneNumberObject.number);
-      // setStep("verify");
+      const phoneNumber = phoneNumberObject.number;
+      await mutateAsync(phoneNumber);
+      setPhoneNumber(phoneNumber);
+      setStep("verify");
     } catch (err) {
-      console.log("GET ERROR!");
       setError(err instanceof Error ? err : new Error("Request failed."));
     }
   };
@@ -95,7 +102,11 @@ export default function RegisterForm() {
                     className="rounded-l-none focus-visible:ring-0 border-none"
                   />
                 </div>
-                {error && <h3 className="text-destructive">{error.message}</h3>}
+                {error && (
+                  <h3 role="alert" className="text-destructive">
+                    {error.message}
+                  </h3>
+                )}
               </Field>
             </FieldGroup>
           </FieldSet>
@@ -108,4 +119,4 @@ export default function RegisterForm() {
       </form>
     </div>
   );
-}
+};

@@ -2,13 +2,13 @@ import { create } from "zustand";
 
 type RegisterStep = "register" | "verify";
 
-type RegisterStepsState = {
+type RegisterStepState = {
   step: RegisterStep;
   setStep: (step: RegisterStep) => void;
   reset: () => void;
 };
 
-export const useRegisterStep = create<RegisterStepsState>((set) => ({
+export const useRegisterStepStore = create<RegisterStepState>((set) => ({
   step: "register",
   setStep: (step: RegisterStep) => set({ step }),
   reset: () => set({ step: "register" }),

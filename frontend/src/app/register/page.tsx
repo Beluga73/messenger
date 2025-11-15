@@ -1,9 +1,10 @@
 "use client";
 
-import { useRegisterStep } from "@/features/auth/hooks/useRegisterStep";
-import RegisterForm from "@/features/auth/components/RegisterForm";
+import { useRegisterStepStore } from "@/features/auth/hooks/useRegisterStepStore";
+import { RegisterForm } from "@/features/auth/components/RegisterForm";
+import { OtpForm } from "@/features/auth/components/OtpForm";
 
 export default function Register() {
-  const { step } = useRegisterStep();
-  return step === "register" ? <RegisterForm /> : <div>Verify step</div>;
+  const { step } = useRegisterStepStore();
+  return step === "register" ? <RegisterForm /> : <OtpForm />;
 }
