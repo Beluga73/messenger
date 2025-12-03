@@ -11,6 +11,8 @@ public class UserService(IUserRepository usersRepository, AuthenticationService 
         User user = new User()
         {
             PhoneNumber = userDto.PhoneNumber,
+            Username = $"user_{userDto.PhoneNumber.Replace("+", "").Replace("-", "").Replace(" ", "")}",
+            RefreshTokens = new List<RefreshToken>()
         };
         
         return await usersRepository.CreateUserAsync(user);
@@ -20,10 +22,17 @@ public class UserService(IUserRepository usersRepository, AuthenticationService 
     {
         return await usersRepository.GetUserByPhoneNumberAsync(phoneNumber);
     }
+    
+    public async Task<User?> GetUserByIdAsync(Guid userId)
+    {
+        return await usersRepository.GetUserByIdAsync(userId);
+    }
 
     public async Task<User?> UpdateUserName(Guid userid, string name)
     {
         var user = await usersRepository.GetUserByIdAsync(userid);
+        if (user == null)
+            throw new Exception("User not found");
         user.Name = name;
         user = await usersRepository.UpdateUser(user);
         return user;
@@ -32,6 +41,8 @@ public class UserService(IUserRepository usersRepository, AuthenticationService 
     public async Task<User?> UpdateUserStatus(Guid userid, string status)
     {
         var user = await usersRepository.GetUserByIdAsync(userid);
+        if (user == null)
+            throw new Exception("User not found");
         user.Status = status;
         user = await usersRepository.UpdateUser(user);
         return user;

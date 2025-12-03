@@ -6,7 +6,7 @@ using Messenger.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
-namespace ColabBoard.Web.Extensions;
+namespace MessengerWeb.Extensions;
 
 public static class AuthExtension
 {
@@ -49,17 +49,26 @@ public static class AuthExtension
                     OnTokenValidated = async context =>
                     {
                         var db = context.HttpContext.RequestServices.GetRequiredService<MessengerDbContext>();
-                        var userId = context.Principal.FindFirstValue(ClaimTypes.NameIdentifier)
-                                     ?? context.Principal.FindFirstValue(JwtRegisteredClaimNames.Sub);
+                        var userIdString = context.Principal.FindFirstValue(ClaimTypes.NameIdentifier)
+                                         ?? context.Principal.FindFirstValue(JwtRegisteredClaimNames.Sub);
 
-                        if (int.TryParse(userId, out int id))
+                        if (Guid.TryParse(userIdString, out Guid userId))
                         {
-                            var user = await db.Users.FindAsync(id);
-                            var tokenVersion = int.Parse(context.Principal.FindFirst("session_secret_version").Value);
+                            var user = await db.Users.FindAsync(userId);
+                            var tokenVersionClaim = context.Principal.FindFirst("session_secret_version")?.Value;
                             
-                            if (user == null || user.SessionSecretVersion != tokenVersion)
+                            if (user == null || tokenVersionClaim == null)
                             {
                                 context.Fail("Token invalid or outdated");
+                                return;
+                            }
+                            
+                            if (int.TryParse(tokenVersionClaim, out int tokenVersion))
+                            {
+                                if (user.SessionSecretVersion != tokenVersion)
+                                {
+                                    context.Fail("Token invalid or outdated");
+                                }
                             }
                         }
                     }

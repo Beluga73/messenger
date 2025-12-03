@@ -1,3 +1,3 @@
 ﻿namespace Messenger.Application.Dtos;
 
-public record CreateUserDto(string Code, string PhoneNumber);
+public record CreateUserDto(string PhoneNumber, string Code);

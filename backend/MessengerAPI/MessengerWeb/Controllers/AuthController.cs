@@ -11,6 +11,11 @@ namespace MessengerWeb.Controllers;
 [Route("api/auth")]
 public class AuthController(PhoneVerificationService verification, UserService userService, AuthenticationService authservice) : ControllerBase
 {
+    /// <summary>
+    /// Initiates phone number verification by sending an SMS code
+    /// </summary>
+    /// <param name="phoneNumber">Phone number in E.164 format (e.g., +1234567890)</param>
+    /// <returns>Verification status</returns>
     [HttpPost]
     [Route("register/initiate")]
     public IActionResult RegisterInitiate([FromForm] string phoneNumber)
@@ -26,6 +31,12 @@ public class AuthController(PhoneVerificationService verification, UserService u
         }
     }
     
+    /// <summary>
+    /// Verifies the SMS code and creates/authenticates the user
+    /// </summary>
+    /// <param name="code">Verification code received via SMS</param>
+    /// <param name="phoneNumber">Phone number used for verification</param>
+    /// <returns>JWT token and refresh token</returns>
     [HttpPost]
     [Route("register/verify")]
     public async Task<IActionResult> RegisterVerify([FromForm] string code,[FromForm] string phoneNumber)
@@ -55,6 +66,11 @@ public class AuthController(PhoneVerificationService verification, UserService u
         }
     }
 
+    /// <summary>
+    /// Refreshes the JWT token using a refresh token
+    /// </summary>
+    /// <param name="token">Refresh token</param>
+    /// <returns>New JWT token and refresh token</returns>
     [HttpPost]
     [Route("token/refresh")]
     public async Task<IActionResult> RefreshToken([FromForm] string token)
@@ -70,6 +86,10 @@ public class AuthController(PhoneVerificationService verification, UserService u
         }
     }
     
+    /// <summary>
+    /// Logs out the user from all devices, invalidating all refresh tokens
+    /// </summary>
+    /// <returns>Success status</returns>
     [HttpPost]
     [Authorize]
     [Route("logout/all")]
