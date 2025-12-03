@@ -9,7 +9,7 @@ public class UserRepository(MessengerDbContext _context) : IUserRepository
     public async Task<User?> GetUserByIdAsync(Guid id)
     {
         return await _context.Set<User>()
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync(u => u.Id == id);
         
     }
     

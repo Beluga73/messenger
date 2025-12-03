@@ -1,5 +1,5 @@
 using Azure.Storage.Blobs;
-using ColabBoard.Web.Extensions;
+using MessengerWeb.Extensions;
 using Messenger.Application;
 using Messenger.Application.Interfaces;
 using Messenger.Application.Services;
@@ -15,13 +15,37 @@ builder.Services.AddCors(options => options.AddDefaultPolicy(policyBuilder => po
 
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+builder.Services.AddScoped<IConversationRepository, ConversationRepository>();
 builder.Services.AddScoped<AuthenticationService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddSingleton<PhoneVerificationService>();
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
 builder.Services.AddDbContext<MessengerDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("postgres")));
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "Messenger API",
+        Version = "v1",
+        Description = "A RESTful API for a messenger application with real-time messaging capabilities",
+        Contact = new Microsoft.OpenApi.Models.OpenApiContact
+        {
+            Name = "Messenger API Support"
+        }
+    });
+    
+    // Include XML comments for Swagger
+    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+    {
+        c.IncludeXmlComments(xmlPath);
+    }
+});
 builder.Services.Configure<TwillioSettings>(builder.Configuration.GetSection("TwilioConfiguration"));
 builder.Services.Configure<AuthSettings>(builder.Configuration.GetSection("AuthSettings"));
 builder.Services.AddAuth(builder.Configuration);
@@ -44,8 +68,10 @@ if (app.Environment.IsDevelopment())
 }
 
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<MessengerWeb.Hubs.MessageHub>("/hubs/messages");
 
 app.Run();
