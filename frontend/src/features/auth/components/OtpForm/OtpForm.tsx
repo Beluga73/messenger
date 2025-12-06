@@ -1,7 +1,7 @@
 "use client";
 
 import { type ChangeEvent, FormEvent, useRef, useState } from "react";
-import { usePhoneNumberStore } from "../hooks/usePhoneNumberStore";
+import { usePhoneNumberStore } from "@/features/auth/hooks/usePhoneNumberStore";
 import { Input } from "@/shared/components/ui/input";
 import {
   Field,
@@ -10,7 +10,7 @@ import {
   FieldSet,
 } from "@/shared/components/ui/field";
 import { Button } from "@/shared/components/ui/button";
-import { useSubmitOtp } from "../hooks/useSubmitOtp";
+import { useSubmitOtp } from "@/features/auth/hooks/useSubmitOtp";
 import { useRouter } from "next/navigation";
 
 const DIGITS = 6;

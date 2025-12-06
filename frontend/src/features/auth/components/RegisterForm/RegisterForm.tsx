@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CountryCombobox } from "@/features/auth/components/CountryCombobox";
+import { CountryCombobox } from "@/features/auth/components";
 import {
   Field,
   FieldLabel,
@@ -18,15 +18,15 @@ import {
   type CountryCallingCode,
   type PhoneNumber,
 } from "libphonenumber-js";
-import { useSubmitPhoneNumber } from "../hooks/useSubmitPhoneNumber";
-import { useRegisterStepStore } from "../hooks/useRegisterStepStore";
-import { usePhoneNumberStore } from "../hooks/usePhoneNumberStore";
+import { useSubmitPhoneNumber } from "@/features/auth/hooks/useSubmitPhoneNumber";
+import { useRegisterStepStore } from "@/features/auth/hooks/useRegisterStepStore";
+import { usePhoneNumberStore } from "@/features/auth/hooks/usePhoneNumberStore";
 import { Phone } from "lucide-react";
 
 export const RegisterForm = () => {
   const { setStep } = useRegisterStepStore();
   const { setPhoneNumber } = usePhoneNumberStore();
-  const { mutateAsync, isPending } = useSubmitPhoneNumber({});
+  const { mutateAsync, isPending } = useSubmitPhoneNumber();
   const [nationalNumber, setNationalNumber] = useState("");
   const [callingCode, setCallingCode] = useState<CountryCallingCode>(
     getCountryCallingCode("PL")
