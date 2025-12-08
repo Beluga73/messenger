@@ -1,7 +1,6 @@
 ﻿using System.Security.Claims;
 using Messenger.Application.Dtos;
 using Messenger.Application.Services;
-using Messenger.Infrastructure.Data.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,12 +17,12 @@ public class AuthController(PhoneVerificationService verification, UserService u
     /// <returns>Verification status</returns>
     [HttpPost]
     [Route("register/initiate")]
-    public IActionResult RegisterInitiate([FromForm] string phoneNumber)
+    public async Task<IActionResult> RegisterInitiate([FromBody] StartPhoneVerificationDto request)
     {
         try
         {
-            var result = verification.SendVerificationCode(phoneNumber);
-            return Ok(new { result });
+            var sessionInfo = await verification.SendVerificationCode(request);
+            return Ok(new { sessionInfo });
         }
         catch (Exception e)
         {
@@ -39,14 +38,14 @@ public class AuthController(PhoneVerificationService verification, UserService u
     /// <returns>JWT token and refresh token</returns>
     [HttpPost]
     [Route("register/verify")]
-    public async Task<IActionResult> RegisterVerify([FromForm] string code,[FromForm] string phoneNumber)
+    public async Task<IActionResult> RegisterVerify([FromBody] CompletePhoneVerificationDto request)
     {
-        var userDto = new CreateUserDto(phoneNumber, code);
         try
         {
-            var result =  verification.VerifyCode(userDto.PhoneNumber, userDto.Code);
-            
-            if (result == "approved")
+            var verificationResult = await verification.VerifyCode(request);
+            var userDto = new CreateUserDto(verificationResult.PhoneNumber);
+
+            if (!string.IsNullOrWhiteSpace(verificationResult.IdToken))
             {
                 var user = await userService.GetUserByPhoneNumber(userDto.PhoneNumber);
                 if (user == null)
@@ -73,11 +72,11 @@ public class AuthController(PhoneVerificationService verification, UserService u
     /// <returns>New JWT token and refresh token</returns>
     [HttpPost]
     [Route("token/refresh")]
-    public async Task<IActionResult> RefreshToken([FromForm] string token)
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto request)
     {
         try
         {
-            var tokenresult = await authservice.RefreshToken(token);
+            var tokenresult = await authservice.RefreshToken(request.Token);
             return Ok(tokenresult);
         }
         catch (Exception e)
