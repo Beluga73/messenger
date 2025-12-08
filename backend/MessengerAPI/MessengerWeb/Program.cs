@@ -20,7 +20,7 @@ builder.Services.AddScoped<IConversationRepository, ConversationRepository>();
 builder.Services.AddScoped<AuthenticationService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
-builder.Services.AddSingleton<PhoneVerificationService>();
+builder.Services.AddHttpClient<PhoneVerificationService>();
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
 builder.Services.AddDbContext<MessengerDbContext>(options =>
@@ -46,7 +46,7 @@ builder.Services.AddSwaggerGen(c =>
         c.IncludeXmlComments(xmlPath);
     }
 });
-builder.Services.Configure<TwillioSettings>(builder.Configuration.GetSection("TwilioConfiguration"));
+builder.Services.Configure<FirebaseSettings>(builder.Configuration.GetSection("FirebaseConfiguration"));
 builder.Services.Configure<AuthSettings>(builder.Configuration.GetSection("AuthSettings"));
 builder.Services.AddAuth(builder.Configuration);
 builder.Services.AddSingleton(x =>
