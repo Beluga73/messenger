@@ -1,4 +1,3 @@
-"use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";

@@ -1,7 +1,4 @@
-"use client";
-
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, useLocation } from "react-router-dom";
 import { MessagesSquare, Phone, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -28,7 +25,7 @@ type NavBarProps = {
 };
 
 export const NavBar = ({ navClassName }: NavBarProps) => {
-  const currentPathname = usePathname();
+  const location = useLocation();
 
   return (
     <nav className={cn("w-full h-12 border-t-1", navClassName)}>
@@ -36,10 +33,10 @@ export const NavBar = ({ navClassName }: NavBarProps) => {
         {navItems.map(({ href, image: Icon }) => (
           <li key={href} className="flex-1">
             <Link
-              href={href}
+              to={href}
               className={cn(
                 "center-children h-full",
-                currentPathname === href && "text-primary"
+                location.pathname === href && "text-primary"
               )}
             >
               <Icon className="size-6" />

@@ -1,19 +1,19 @@
-import { headers } from "next/headers";
 import { MasterLayout } from "@/shared/components/layout/MasterLayout";
+import { FunnyGuys } from "@/shared/components/FunnyGuys";
 
-export default async function Layout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  const headersList = await headers();
-  const viewport = headersList.get("x-viewport") || "desktop";
-
-  const layoutProps = { LeftPanel: <LeftPanel />, RightPanel: children };
-  return <MasterLayout {...layoutProps} initialViewport={viewport} />;
+export default function ChatsPage() {
+  return (
+    <MasterLayout
+      LeftPanel={<LeftPanel />}
+      RightPanel={
+        <div className="flex justify-center items-center w-full h-full">
+          <FunnyGuys />
+        </div>
+      }
+    />
+  );
 }
 
-// SHOULD IMPORT AND FROM COMPONENT
 const LeftPanel = () => {
   const myArray = Array.from({ length: 30 });
 

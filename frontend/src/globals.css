@@ -1,8 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* Clean Slate from tweakcn.com */
-
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

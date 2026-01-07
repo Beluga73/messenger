@@ -1,4 +1,3 @@
-"use client";
 
 import { useState } from "react";
 import { CountryCombobox } from "@/features/auth/components";
