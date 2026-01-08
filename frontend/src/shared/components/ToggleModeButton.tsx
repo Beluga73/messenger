@@ -1,16 +1,15 @@
-"use client";
-
-import { useTheme } from "next-themes";
+import { useThemeStore } from "@/stores/themeStore";
 import { Button } from "@/shared/components/ui/button";
 import { Sun, Moon } from "lucide-react";
 
 export const ToggleModeButton = () => {
-  const { theme, setTheme } = useTheme();
+  const theme = useThemeStore((state) => state.theme);
+  const toggleTheme = useThemeStore((state) => state.toggleTheme);
 
   return (
     <Button
       area-label="toggle theme"
-      onClick={() => setTheme((prev) => (prev === "light" ? "dark" : "light"))}
+      onClick={toggleTheme}
       variant="ghost"
       className="w-9 h-9 p-0 rounded-full"
     >

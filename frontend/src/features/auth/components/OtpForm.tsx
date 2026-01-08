@@ -1,7 +1,6 @@
-"use client";
-
 import { type ChangeEvent, FormEvent, useRef, useState } from "react";
-import { usePhoneNumberStore } from "../hooks/usePhoneNumberStore";
+import { useNavigate } from "react-router-dom";
+import { usePhoneNumberStore } from "@/features/auth/hooks/usePhoneNumberStore";
 import { Input } from "@/shared/components/ui/input";
 import {
   Field,
@@ -10,8 +9,7 @@ import {
   FieldSet,
 } from "@/shared/components/ui/field";
 import { Button } from "@/shared/components/ui/button";
-import { useSubmitOtp } from "../hooks/useSubmitOtp";
-import { useRouter } from "next/navigation";
+import { useSubmitOtp } from "@/features/auth/hooks/useSubmitOtp";
 
 const DIGITS = 6;
 
@@ -22,7 +20,7 @@ export const OtpForm = () => {
   const inputs = useRef<Array<HTMLInputElement | null>>(
     new Array(DIGITS).fill(null)
   );
-  const router = useRouter();
+  const navigate = useNavigate();
   const [error, setError] = useState<Error | null>(null);
 
   const focusInput = (idx: number) => {
@@ -109,7 +107,7 @@ export const OtpForm = () => {
 
     try {
       await mutateAsync({ code, phoneNumber });
-      router.push("/chats");
+      navigate("/chats");
     } catch (err) {
       setError(err instanceof Error ? err : new Error("Request failed."));
     }

@@ -1,5 +1,5 @@
-import { fetchWrapper } from "@/lib/fetchWrapper";
-import { buildUrl } from "@/lib/buildUrl";
+import { fetchWrapper } from "@/shared/lib/fetchWrapper";
+import { buildUrl } from "@/shared/lib/buildUrl";
 
 export const verifyOtp = async (body: {
   phoneNumber: string;

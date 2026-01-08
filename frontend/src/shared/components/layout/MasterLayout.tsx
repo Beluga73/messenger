@@ -1,6 +1,4 @@
-"use client";
-
-import { usePathname } from "next/navigation";
+import { useLocation } from "react-router-dom";
 import { useMobileLayout } from "@/shared/hooks/useMobile";
 import { NavBar } from "./NavBar";
 import type { ReactNode } from "react";
@@ -31,9 +29,9 @@ export const MobileMasterLayout = ({
   RightPanel,
 }: MasterLayoutProps) => {
   const paths = ["/chats", "/settings"]; // for those paths show left panel
-  const pathname = usePathname();
+  const location = useLocation();
 
-  const Panel = paths.includes(pathname) ? LeftPanel : RightPanel;
+  const Panel = paths.includes(location.pathname) ? LeftPanel : RightPanel;
 
   return (
     <div className="flex flex-col w-screen h-screen">
@@ -43,12 +41,8 @@ export const MobileMasterLayout = ({
   );
 };
 
-export const MasterLayout = ({
-  initialViewport,
-  LeftPanel,
-  RightPanel,
-}: MasterLayoutProps & { initialViewport: string }) => {
-  const isMobile = useMobileLayout(initialViewport);
+export const MasterLayout = ({ LeftPanel, RightPanel }: MasterLayoutProps) => {
+  const isMobile = useMobileLayout();
   const layoutProps = { LeftPanel, RightPanel };
 
   return isMobile ? (
