@@ -12,6 +12,8 @@ import ChatDetailPage from "@/pages/ChatDetailPage";
 import RegisterPage from "@/pages/RegisterPage";
 import LoginPage from "@/pages/LoginPage";
 import HomePage from "@/pages/HomePage";
+import CallsPage from "@/pages/CallsPage";
+import SettingsPage from "@/pages/SettingsPage";
 import "./index.css";
 
 const App = () => {
@@ -23,6 +25,8 @@ const App = () => {
         <Route path="/chats/:id" element={<ChatDetailPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/calls" element={<CallsPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>
