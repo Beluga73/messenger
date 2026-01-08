@@ -1,5 +1,5 @@
-
-import { useState } from "react";
+import { useState, useRef } from "react";
+import ReCAPTCHA from "react-google-recaptcha";
 import { CountryCombobox } from "@/features/auth/components";
 import {
   Field,
@@ -21,6 +21,7 @@ import { useSubmitPhoneNumber } from "@/features/auth/hooks/useSubmitPhoneNumber
 import { useRegisterStepStore } from "@/features/auth/hooks/useRegisterStepStore";
 import { usePhoneNumberStore } from "@/features/auth/hooks/usePhoneNumberStore";
 import { Phone } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export const RegisterForm = () => {
   const { setStep } = useRegisterStepStore();
@@ -31,6 +32,9 @@ export const RegisterForm = () => {
     getCountryCallingCode("PL")
   );
   const [error, setError] = useState<Error | null>(null);
+  // No need to keep recaptchaToken in state for v3
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
+  const recaptchaSiteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY || "";
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -60,12 +64,24 @@ export const RegisterForm = () => {
       return;
     }
 
-    // Making network request
+    // reCAPTCHA v3: execute programmatically
     try {
+      const recaptcha = recaptchaRef.current;
+      if (!recaptcha) {
+        setError(new Error("reCAPTCHA not loaded. Try reloading the page"));
+        return;
+      }
+      const token = await recaptcha.executeAsync();
+      if (!token) {
+        setError(new Error("Failed to get reCAPTCHA token."));
+        return;
+      }
       const phoneNumber = phoneNumberObject.number;
-      await mutateAsync(phoneNumber);
+
+      await mutateAsync({ phoneNumber, recaptchaToken: token });
       setPhoneNumber(phoneNumber);
       setStep("verify");
+      recaptcha.reset();
     } catch (err) {
       setError(err instanceof Error ? err : new Error("Request failed."));
     }
@@ -110,10 +126,23 @@ export const RegisterForm = () => {
             </FieldGroup>
           </FieldSet>
           <Field>
+            {/* reCAPTCHA v3 is invisible, no widget shown */}
+            <ReCAPTCHA
+              ref={recaptchaRef}
+              sitekey={recaptchaSiteKey}
+              size="invisible"
+              badge="bottomright"
+            />
             <Button disabled={isPending}>
               {isPending ? "Submitting..." : "Register"}
             </Button>
           </Field>
+          <div className="mt-4 text-center text-sm text-muted-foreground">
+            Don't have an account? Login{" "}
+            <Link to="/login" className="text-primary underline">
+              here
+            </Link>
+          </div>
         </FieldGroup>
       </form>
     </div>

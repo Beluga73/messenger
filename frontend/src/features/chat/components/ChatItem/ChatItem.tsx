@@ -5,7 +5,7 @@ import {
 } from "@/shared/components/ui/avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import { Check } from "lucide-react";
-import { formatChatTime } from "@/lib/utils";
+import { formatChatTime } from "@/shared/lib/utils";
 import { ChatItem as ChatItemType } from "@/features/chat/types";
 
 interface ChatItemProps {

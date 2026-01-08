@@ -10,8 +10,9 @@ import { RootProviders } from "@/providers";
 import ChatsPage from "@/pages/ChatsPage";
 import ChatDetailPage from "@/pages/ChatDetailPage";
 import RegisterPage from "@/pages/RegisterPage";
+import LoginPage from "@/pages/LoginPage";
 import HomePage from "@/pages/HomePage";
-import "./globals.css";
+import "./index.css";
 
 const App = () => {
   return (
@@ -21,6 +22,7 @@ const App = () => {
         <Route path="/chats" element={<ChatsPage />} />
         <Route path="/chats/:id" element={<ChatDetailPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

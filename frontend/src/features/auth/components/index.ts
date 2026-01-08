@@ -1,3 +1,3 @@
-export { CountryCombobox } from "./CountryCombobox/CountryCombobox";
-export { OtpForm } from "./OtpForm/OtpForm";
-export { RegisterForm } from "./RegisterForm/RegisterForm";
+export { CountryCombobox } from "./CountryCombobox";
+export { OtpForm } from "./OtpForm";
+export { RegisterForm } from "./RegisterForm";

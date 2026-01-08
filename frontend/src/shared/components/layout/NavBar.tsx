@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { MessagesSquare, Phone, Settings } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/shared/lib/utils";
 
 const navItems = [
   {
