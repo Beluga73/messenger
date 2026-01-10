@@ -11,7 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(options => options.AddDefaultPolicy(policyBuilder => policyBuilder.AllowAnyOrigin()
     .AllowAnyMethod()
-    .AllowAnyHeader()));
+    .AllowAnyHeader()
+    .AllowCredentials()));
 
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -31,7 +32,7 @@ builder.Services.AddSwaggerGen(c =>
     {
         Title = "Messenger API",
         Version = "v1",
-        Description = "A RESTful API for a messenger application with real-time messaging capabilities",
+        Description = "A RESTful API for a messenger application with real-time messaging capabilities via SignalR",
         Contact = new Microsoft.OpenApi.Models.OpenApiContact
         {
             Name = "Messenger API Support"
