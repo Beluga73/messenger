@@ -4,6 +4,7 @@ import { verifyOtp } from "../lib/verifyOtp";
 type VerifyOtpVariables = {
   phoneNumber: string;
   code: string;
+  sessionInfo: string;
 };
 
 export const useSubmitOtp = (

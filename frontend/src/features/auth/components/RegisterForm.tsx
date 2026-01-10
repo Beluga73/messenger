@@ -25,7 +25,7 @@ import { Link } from "react-router-dom";
 
 export const RegisterForm = () => {
   const { setStep } = useRegisterStepStore();
-  const { setPhoneNumber } = usePhoneNumberStore();
+  const { setVerificationData } = usePhoneNumberStore();
   const { mutateAsync, isPending } = useSubmitPhoneNumber();
   const [nationalNumber, setNationalNumber] = useState("");
   const [callingCode, setCallingCode] = useState<CountryCallingCode>(
@@ -78,8 +78,11 @@ export const RegisterForm = () => {
       }
       const phoneNumber = phoneNumberObject.number;
 
-      await mutateAsync({ phoneNumber, recaptchaToken: token });
-      setPhoneNumber(phoneNumber);
+      const response = await mutateAsync({
+        phoneNumber,
+        recaptchaToken: token,
+      });
+      setVerificationData(phoneNumber, response.sessionInfo);
       setStep("verify");
       recaptcha.reset();
     } catch (err) {

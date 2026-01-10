@@ -15,7 +15,7 @@ const DIGITS = 6;
 
 export const OtpForm = () => {
   const { mutateAsync, isPending } = useSubmitOtp();
-  const { phoneNumber } = usePhoneNumberStore();
+  const { phoneNumber, sessionInfo } = usePhoneNumberStore();
   const [otp, setOtp] = useState<string[]>(new Array(DIGITS).fill(""));
   const inputs = useRef<Array<HTMLInputElement | null>>(
     new Array(DIGITS).fill(null)
@@ -106,7 +106,7 @@ export const OtpForm = () => {
     }
 
     try {
-      await mutateAsync({ code, phoneNumber });
+      await mutateAsync({ code, phoneNumber, sessionInfo });
       navigate("/chats");
     } catch (err) {
       setError(err instanceof Error ? err : new Error("Request failed."));
