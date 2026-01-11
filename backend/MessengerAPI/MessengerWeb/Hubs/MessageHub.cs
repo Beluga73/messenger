@@ -58,7 +58,6 @@ public class MessageHub : Hub
             await Clients.Group($"conversation_{message.ConversationId}")
                 .SendAsync("ReceiveMessage", message);
             
-            // Notify the recipient directly if not in conversation group
             await Clients.Group($"user_{messageDto.RecipientId}")
                 .SendAsync("NewMessage", message);
         }
@@ -162,7 +161,6 @@ public class MessageHub : Hub
             var userId = GetUserId();
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"conversation_{conversationId}");
             
-            // Notify others that user left
             await Clients.Group($"conversation_{conversationId}")
                 .SendAsync("UserLeftConversation", userId, Context.ConnectionId);
         }
