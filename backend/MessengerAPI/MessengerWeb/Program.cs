@@ -9,10 +9,11 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddCors(options => options.AddDefaultPolicy(policyBuilder => policyBuilder.AllowAnyOrigin()
-    .AllowAnyMethod()
-    .AllowAnyHeader()
-    .AllowCredentials()));
+builder.Services.AddCors(options => options.AddDefaultPolicy(policyBuilder => 
+    policyBuilder.WithOrigins("http://localhost:5173") // Replace with your actual frontend URL
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials()));
 
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
