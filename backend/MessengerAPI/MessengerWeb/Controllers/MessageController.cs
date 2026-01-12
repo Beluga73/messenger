@@ -6,21 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MessengerWeb.Controllers;
 
-/// <summary>
-/// DEPRECATED: Use SignalR MessageHub instead.
-/// This controller is maintained for backward compatibility only.
-/// All messaging operations have been migrated to real-time SignalR communication.
-/// </summary>
 [Authorize]
 [ApiController]
 [Route("api/messages")]
-[Obsolete("Use SignalR MessageHub at /hubs/messages instead")]
 public class MessageController(IMessageService messageService) : ControllerBase
 {
-    /// <summary>
-    /// DEPRECATED: Use MessageHub.SendMessage() via SignalR instead.
-    /// Get messages from a conversation
-    /// </summary>
     [HttpGet]
     [Route("conversation/{conversationId}")]
     public async Task<IActionResult> GetMessages(Guid conversationId, [FromQuery] int skip = 0, [FromQuery] int take = 50)
@@ -37,11 +27,7 @@ public class MessageController(IMessageService messageService) : ControllerBase
             return BadRequest(e.Message);
         }
     }
-
-    /// <summary>
-    /// DEPRECATED: Use MessageHub.LoadConversations() via SignalR instead.
-    /// Get all conversations for the current user
-    /// </summary>
+    
     [HttpGet]
     [Route("conversations")]
     public async Task<IActionResult> GetConversations()
