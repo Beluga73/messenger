@@ -4,6 +4,7 @@ import { buildUrl } from "@/shared/lib/buildUrl";
 export const verifyOtp = async (body: {
   phoneNumber: string;
   code: string;
+  sessionInfo: string;
 }) => {
   const url = buildUrl("/api/auth/register/verify");
   return fetchWrapper(url, "POST", body);

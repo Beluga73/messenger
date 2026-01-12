@@ -7,6 +7,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import { RootProviders } from "@/providers";
+import { ProtectedRoute } from "@/shared/components/ProtectedRoute";
 import ChatsPage from "@/pages/ChatsPage";
 import ChatDetailPage from "@/pages/ChatDetailPage";
 import RegisterPage from "@/pages/RegisterPage";
@@ -20,13 +21,48 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/chats" element={<ChatsPage />} />
-        <Route path="/chats/:id" element={<ChatDetailPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/calls" element={<CallsPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <HomePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/chats"
+          element={
+            <ProtectedRoute>
+              <ChatsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/chats/:id"
+          element={
+            <ProtectedRoute>
+              <ChatDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/calls"
+          element={
+            <ProtectedRoute>
+              <CallsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <SettingsPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

@@ -1,6 +1,7 @@
 import { type ChangeEvent, FormEvent, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePhoneNumberStore } from "@/features/auth/hooks/usePhoneNumberStore";
+import { useTokenStore } from "@/stores/tokenStore";
 import { Input } from "@/shared/components/ui/input";
 import {
   Field,
@@ -15,7 +16,8 @@ const DIGITS = 6;
 
 export const OtpForm = () => {
   const { mutateAsync, isPending } = useSubmitOtp();
-  const { phoneNumber } = usePhoneNumberStore();
+  const { phoneNumber, sessionInfo } = usePhoneNumberStore();
+  const { setTokens } = useTokenStore();
   const [otp, setOtp] = useState<string[]>(new Array(DIGITS).fill(""));
   const inputs = useRef<Array<HTMLInputElement | null>>(
     new Array(DIGITS).fill(null)
@@ -106,7 +108,8 @@ export const OtpForm = () => {
     }
 
     try {
-      await mutateAsync({ code, phoneNumber });
+      const data = await mutateAsync({ code, phoneNumber, sessionInfo });
+      setTokens(data.jwtToken, data.refreshToken);
       navigate("/chats");
     } catch (err) {
       setError(err instanceof Error ? err : new Error("Request failed."));

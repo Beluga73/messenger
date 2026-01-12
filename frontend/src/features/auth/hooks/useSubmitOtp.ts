@@ -4,10 +4,21 @@ import { verifyOtp } from "../lib/verifyOtp";
 type VerifyOtpVariables = {
   phoneNumber: string;
   code: string;
+  sessionInfo: string;
+};
+
+type VerifyOtpResponse = {
+  jwtToken: string;
+  refreshToken: string;
 };
 
 export const useSubmitOtp = (
-  options?: UseMutationOptions<unknown, Error, VerifyOtpVariables, unknown>
+  options?: UseMutationOptions<
+    VerifyOtpResponse,
+    Error,
+    VerifyOtpVariables,
+    unknown
+  >
 ) =>
   useMutation({
     mutationFn: verifyOtp,
