@@ -28,15 +28,8 @@ public class SearchController : ControllerBase
         if (users == null || users.Count == 0)
             return NotFound("No users found");
         
-        var userDtos = users.Select(u => new UserDto
-        {
-            Id = u.Id,
-            Username = u.Username,
-            Name = u.Name,
-            PhoneNumber = u.PhoneNumber,
-            AvatarUrl = u.AvatarUrl,
-            Status = u.Status
-        }).ToList();
+        var userDtos = users.Select(u => new UserDto(u)
+).ToList();
         
         return Ok(userDtos);
     }
