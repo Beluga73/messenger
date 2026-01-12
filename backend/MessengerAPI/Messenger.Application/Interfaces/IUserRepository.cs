@@ -13,5 +13,7 @@ public interface IUserRepository
     
     public Task<User> UpdateUser(User user);
 
-    public  Task LogoutUser(Guid userId);
+    public Task LogoutUser(Guid userId);
+    
+    public Task<List<User>> GetAllUsersAsync();
 }

@@ -56,4 +56,9 @@ public class UserRepository(MessengerDbContext _context) : IUserRepository
         await _context.SaveChangesAsync();
     }
     
+    public async Task<List<User>> GetAllUsersAsync()
+    {
+        return await _context.Set<User>().ToListAsync();
+    }
+    
 }

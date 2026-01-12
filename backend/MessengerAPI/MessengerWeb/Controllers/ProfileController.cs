@@ -78,5 +78,6 @@ public class ProfileController(UserService userService, IBlobService blobService
         var user = await userService.UpdateUserAvatar(userId, avatarUrl);
         return Ok(new UserDto(user));
     }
+    
 }
 
