@@ -79,5 +79,80 @@ public class ProfileController(UserService userService, IBlobService blobService
         return Ok(new UserDto(user));
     }
     
+    /// <summary>
+    /// Updates the user's username.
+    /// </summary>
+    /// <param name="request">The new username to set.</param>
+    /// <returns>The updated User profile data.</returns>
+    /// <response code="200">Username updated successfully</response>
+    /// <response code="400">Invalid request or user not found</response>
+    /// <response code="401">User is not authenticated</response>
+    /// <response code="409">Username already exists</response>
+    [HttpPut]
+    [Route("username")]
+    [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> UpdateUsername([FromBody] string username)
+    {
+        try
+        {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
+                                ?? throw new Exception("User not authenticated"));
+
+        if (string.IsNullOrWhiteSpace(username))
+        {
+            return BadRequest("Username cannot be empty");
+        }
+
+        var user = await userService.UpdateUserName(userId, username);
+        return Ok(new UserDto(user));
+    }
+    catch (InvalidOperationException ex) when (ex.Message.Contains("already exists"))
+    {
+        return Conflict("Username already exists");
+    }
+    catch (Exception ex)
+    {
+        return BadRequest(ex.Message);
+    }
 }
 
+/// <summary>
+/// Updates the user's display name.
+/// </summary>
+/// <param name="request">The new name to set.</param>
+/// <returns>The updated User profile data.</returns>
+/// <response code="200">Name updated successfully</response>
+/// <response code="400">Invalid request or user not found</response>
+/// <response code="401">User is not authenticated</response>
+[HttpPut]
+[Route("name")]
+[ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+[ProducesResponseType(StatusCodes.Status400BadRequest)]
+public async Task<IActionResult> UpdateName([FromBody] string Name)
+{
+    try
+    {
+        var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
+                                ?? throw new Exception("User not authenticated"));
+
+        if (string.IsNullOrWhiteSpace(Name))
+        {
+            return BadRequest("Name cannot be empty");
+        }
+
+        var user = await userService.UpdateUserName(userId, Name);
+        if (user == null)
+        {
+            return BadRequest("User not found");
+        }
+
+        return Ok(new UserDto(user));
+    }
+    catch (Exception ex)
+    {
+        return BadRequest(ex.Message);
+    }
+}
+}
