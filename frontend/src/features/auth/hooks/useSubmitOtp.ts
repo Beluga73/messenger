@@ -7,8 +7,18 @@ type VerifyOtpVariables = {
   sessionInfo: string;
 };
 
+type VerifyOtpResponse = {
+  jwtToken: string;
+  refreshToken: string;
+};
+
 export const useSubmitOtp = (
-  options?: UseMutationOptions<unknown, Error, VerifyOtpVariables, unknown>
+  options?: UseMutationOptions<
+    VerifyOtpResponse,
+    Error,
+    VerifyOtpVariables,
+    unknown
+  >
 ) =>
   useMutation({
     mutationFn: verifyOtp,
