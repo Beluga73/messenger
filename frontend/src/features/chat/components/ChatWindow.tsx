@@ -1,10 +1,9 @@
-
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { ChatHeader } from "../ChatHeader";
-import { MessageBubble } from "../MessageBubble";
-import { MessageDateSeparator } from "../MessageDateSeparator";
-import { MessageInput } from "../MessageInput";
+import { ChatHeader } from "./ChatHeader";
+import { MessageBubble } from "./MessageBubble";
+import { MessageDateSeparator } from "./MessageDateSeparator";
+import { MessageInput } from "./MessageInput";
 import { Message, ChatHeaderData } from "@/features/chat/types";
 
 interface ChatWindowProps {
