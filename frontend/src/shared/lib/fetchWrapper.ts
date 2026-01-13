@@ -1,4 +1,5 @@
 import { useTokenStore } from "@/stores/tokenStore";
+import { buildUrl } from "./buildUrl";
 
 export const fetchWrapper = async (
   url: string,
@@ -24,12 +25,13 @@ export const fetchWrapper = async (
     }
 
     try {
-      const response = await fetch("/api/auth/token/refresh", {
+      const url = buildUrl("/api/auth/token/refresh");
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ refreshToken }),
+        body: JSON.stringify({ token: refreshToken }),
       });
 
       if (!response.ok) {
@@ -37,8 +39,8 @@ export const fetchWrapper = async (
         throw new Error(error?.message || "Token refresh failed");
       }
 
-      const { jwtToken } = await response.json();
-      setTokens(jwtToken, refreshToken);
+      const { jwtToken, _refreshToken } = await response.json();
+      setTokens(jwtToken, _refreshToken);
 
       // Retry original request with new token
       const retryResponse = await fetch(url, {
