@@ -1,11 +1,10 @@
 export interface ChatItem {
   id: string;
-  image: string;
-  title: string;
-  lastMessage: string;
-  isFromMe: boolean;
-  isRead: boolean;
-  time: Date;
+  userId: string;
+  userName: string;
+  userAvatarUrl: string;
+  lastMessage: string | null;
+  lastMessageAt: string;
   unreadCount: number;
 }
 
