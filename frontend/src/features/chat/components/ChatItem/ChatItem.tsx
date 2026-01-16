@@ -9,9 +9,11 @@ import { ChatItem as ChatItemType } from "@/features/chat/types";
 
 interface ChatItemProps {
   chat: ChatItemType;
+  handleClick: () => void;
+  selected?: boolean;
 }
 
-export function ChatItem({ chat }: ChatItemProps) {
+export function ChatItem({ chat, handleClick, selected = false }: ChatItemProps) {
   const truncatedMessage =
     chat.lastMessage && chat.lastMessage.length > 30
       ? `${chat.lastMessage.slice(0, 30).trim()}...`
@@ -20,7 +22,12 @@ export function ChatItem({ chat }: ChatItemProps) {
   const lastMessageDate = new Date(chat.lastMessageAt);
 
   return (
-    <div className="flex items-center p-3 hover:bg-accent/50 cursor-pointer transition-colors">
+    <div
+      className={`flex items-center p-3 hover:bg-accent/50 cursor-pointer transition-colors ${
+        selected ? "bg-accent/30" : ""
+      }`}
+      onClick={handleClick}
+    >
       <Avatar className="h-12 w-12 mr-3">
         <AvatarImage src={chat.userAvatarUrl} alt={chat.userName} />
         <AvatarFallback>{chat.userName.charAt(0)}</AvatarFallback>

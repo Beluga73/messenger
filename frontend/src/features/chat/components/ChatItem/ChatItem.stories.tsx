@@ -28,6 +28,8 @@ const sampleChat: ChatItemType = {
 export const Default: Story = {
   args: {
     chat: sampleChat,
+    handleClick: () => {},
+    selected: false,
   },
 };
 
@@ -37,6 +39,8 @@ export const Unread: Story = {
       ...sampleChat,
       unreadCount: 3,
     },
+    handleClick: () => {},
+    selected: false,
   },
 };
 
@@ -46,6 +50,8 @@ export const SentByMeRead: Story = {
       ...sampleChat,
       lastMessage: "Sure, let's meet tomorrow!",
     },
+    handleClick: () => {},
+    selected: false,
   },
 };
 
@@ -55,6 +61,8 @@ export const SentByMeUnread: Story = {
       ...sampleChat,
       lastMessage: "What time works for you?",
     },
+    handleClick: () => {},
+    selected: false,
   },
 };
 
@@ -66,5 +74,15 @@ export const OldMessage: Story = {
         Date.now() - 8 * 24 * 60 * 60 * 1000
       ).toISOString(), // 8 days ago
     },
+    handleClick: () => {},
+    selected: false,
+  },
+};
+
+export const Selected: Story = {
+  args: {
+    chat: sampleChat,
+    handleClick: () => {},
+    selected: true,
   },
 };
