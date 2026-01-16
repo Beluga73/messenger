@@ -7,26 +7,27 @@ export const fetchWrapper = async (
   body?: any,
   headers?: HeadersInit
 ) => {
+  const { jwtToken, refreshToken, setTokens } = useTokenStore.getState();
+
   const response = await fetch(url, {
     method,
     headers: {
       "Content-Type": "application/json",
+      ...(jwtToken && { Authorization: `Bearer ${jwtToken}` }),
       ...headers,
     },
     body: body && JSON.stringify(body),
   });
 
   if (response.status === 401) {
-    const { refreshToken, setTokens } = useTokenStore.getState();
-
     if (!refreshToken) {
       const error = await response.json();
       throw new Error(error?.message || "Unauthorized");
     }
 
     try {
-      const url = buildUrl("/api/auth/token/refresh");
-      const response = await fetch(url, {
+      const refreshUrl = buildUrl("/api/auth/token/refresh");
+      const refreshResponse = await fetch(refreshUrl, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -34,20 +35,21 @@ export const fetchWrapper = async (
         body: JSON.stringify({ token: refreshToken }),
       });
 
-      if (!response.ok) {
-        const error = await response.json();
+      if (!refreshResponse.ok) {
+        const error = await refreshResponse.json();
         throw new Error(error?.message || "Token refresh failed");
       }
 
-      const { jwtToken, _refreshToken } = await response.json();
-      setTokens(jwtToken, _refreshToken);
+      const { jwtToken: newJwtToken, newRefreshToken } =
+        await refreshResponse.json();
+      setTokens(newJwtToken, newRefreshToken);
 
       // Retry original request with new token
       const retryResponse = await fetch(url, {
         method,
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${jwtToken}`,
+          Authorization: `Bearer ${newJwtToken}`,
           ...headers,
         },
         body: body && JSON.stringify(body),
