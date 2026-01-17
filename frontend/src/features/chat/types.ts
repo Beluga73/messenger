@@ -23,6 +23,7 @@ export interface Message {
   };
 }
 
+// TODO: move that directly in ChatWindow file?
 export interface ChatHeaderData {
   id: string;
   image: string;
@@ -30,4 +31,13 @@ export interface ChatHeaderData {
   isGroup: boolean;
   memberCount?: number;
   lastSeenOnline?: Date;
+}
+
+export interface SearchUserResult {
+  id: string;
+  username: string;
+  name: string | null;
+  phoneNumber: string;
+  avatarUrl: string;
+  status: string | null;
 }

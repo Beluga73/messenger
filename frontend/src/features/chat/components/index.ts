@@ -5,3 +5,4 @@ export { MessageBubble } from "./MessageBubble/MessageBubble";
 export { MessageDateSeparator } from "./MessageDateSeparator/MessageDateSeparator";
 export { MessageInput } from "./MessageInput/MessageInput";
 export { ChatHeader } from "./ChatHeader/ChatHeader";
+export { SearchItem } from "./SearchItem/SearchItem";
