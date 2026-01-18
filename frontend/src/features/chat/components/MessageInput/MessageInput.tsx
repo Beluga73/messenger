@@ -1,4 +1,3 @@
-
 import { useState, useRef } from "react";
 import { Button } from "@/shared/components/ui/button";
 import { Textarea } from "@/shared/components/ui/textarea";
@@ -50,16 +49,18 @@ export function MessageInput({
   };
 
   const handleEmojiClick = (emojiData: any) => {
-    const newMessage = message + emojiData.emoji;
-    setMessage(newMessage);
-    if (textareaRef.current) {
-      textareaRef.current.focus();
-    }
+    setMessage((prev) => prev + emojiData.emoji);
+    // TODO: From UI/UX standpoint, do we need this?
+    setTimeout(() => {
+      if (textareaRef.current) {
+        textareaRef.current.focus();
+      }
+    }, 0);
   };
 
   return (
     <div className="flex items-end gap-2 p-4 border-t border-border bg-background">
-      <Popover open={openEmoji} onOpenChange={setOpenEmoji}>
+      <Popover open={openEmoji} onOpenChange={setOpenEmoji} modal={false}>
         <PopoverTrigger asChild>
           <Button
             variant="ghost"
@@ -70,7 +71,12 @@ export function MessageInput({
             <Smile className="h-5 w-5" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent side="top" align="start" className="w-fit p-0 border-none shadow-lg">
+        <PopoverContent
+          side="top"
+          align="start"
+          className="w-fit p-0 border-none shadow-lg"
+          onFocusOutside={(e) => e.preventDefault()}
+        >
           <EmojiPicker
             onEmojiClick={handleEmojiClick}
             width={350}

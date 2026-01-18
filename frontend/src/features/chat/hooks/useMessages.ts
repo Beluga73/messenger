@@ -8,18 +8,15 @@ export const useMessages = (conversationId: string) => {
     queryFn: ({ pageParam = 0 }) =>
       fetchMessages({
         conversationId,
-        skip: pageParam,
+        skip: pageParam as number,
         take: 50,
       }),
     initialPageParam: 0,
-    getNextPageParam: (lastPage, pages) => {
-      if (!lastPage.hasMore) return undefined;
-      return pages.length * 50;
+    getPreviousPageParam: (firstPage, _allPages, firstPageParam) => {
+      if (!firstPage.hasMore) return undefined;
+      return (firstPageParam as number) + 50;
     },
-    getPreviousPageParam: (firstPage, pages) => {
-      if (pages.length === 1) return undefined;
-      return (pages.length - 1) * 50 - 50;
-    },
+    getNextPageParam: () => undefined,
     staleTime: Infinity,
     gcTime: Infinity,
   });
