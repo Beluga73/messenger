@@ -62,8 +62,9 @@ export function SearchBar({
         placeholder={placeholder}
         className="w-full h-8 px-2 py-1 pr-10 text-sm border border-input rounded-md bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
         aria-label={placeholder}
-        onKeyDown={e => {
+        onKeyDown={(e) => {
           if (e.key === "Escape") {
+            setQuery("");
             (e.target as HTMLInputElement).blur();
           }
         }}
