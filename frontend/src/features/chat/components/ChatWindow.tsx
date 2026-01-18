@@ -1,15 +1,27 @@
-import { useRef, useLayoutEffect, useEffect } from "react";
+import { useRef, useEffect, useMemo } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useParams } from "react-router-dom";
 import { useTokenStore } from "@/stores/tokenStore";
 import { ChatHeader } from "./ChatHeader/ChatHeader";
 import { MessageBubble } from "./MessageBubble/MessageBubble";
 import { MessageInput } from "./MessageInput/MessageInput";
-import { Message, ChatHeaderData } from "@/features/chat/types";
+import { ChatHeaderData } from "@/features/chat/types";
 import {
   useMessages,
   flattenMessages,
 } from "@/features/chat/hooks/useMessages";
+
+// This is bad, rewrite with sth else
+const getCurrentUser = (jwtToken: string | null) => {
+  if (!jwtToken) return;
+
+  try {
+    const payload = JSON.parse(atob(jwtToken.split(".")[1]));
+    return payload.sub || payload.unique_name || "";
+  } catch (e) {
+    console.error("Failed to decode token", e);
+  }
+};
 
 // Mock data for now
 const mockChatHeader: ChatHeaderData = {
@@ -23,155 +35,133 @@ const mockChatHeader: ChatHeaderData = {
 export function ChatWindow() {
   const { id: conversationId } = useParams<{ id: string }>();
   const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const prevScrollHeightRef = useRef(0);
   const { jwtToken } = useTokenStore();
+  let currentUserId = getCurrentUser(jwtToken);
 
-  // Decode current user ID from JWT token
-  let currentUserId = "";
-  if (jwtToken) {
-    try {
-      const payload = JSON.parse(atob(jwtToken.split(".")[1]));
-      currentUserId = payload.sub || payload.nameid || "";
-    } catch (e) {
-      console.error("Failed to decode token", e);
-    }
-  }
-  const isLoadingMoreRef = useRef(false);
-
-  // Fetch messages with infinite query
   const { data, fetchPreviousPage, hasPreviousPage, isFetchingPreviousPage } =
     useMessages(conversationId!);
-  console.log(data);
 
+  // 1. REVERSE THE DATA: Newest message is now Index 0
+  // This places the newest messages at the "start" of the list (which is the bottom visually with scaleY(-1))
   const messages = data ? flattenMessages(data.pages) : [];
-
-  // Handle scroll position preservation when loading older messages
-  useLayoutEffect(() => {
-    const container = messagesContainerRef.current;
-    if (!container) return;
-
-    // Store scroll height before new messages are added
-    if (isFetchingPreviousPage) {
-      prevScrollHeightRef.current = container.scrollHeight;
-      isLoadingMoreRef.current = true;
-    }
-
-    // Restore scroll position after messages are added
-    if (isLoadingMoreRef.current && !isFetchingPreviousPage) {
-      const heightDifference =
-        container.scrollHeight - prevScrollHeightRef.current;
-      container.scrollTop += heightDifference;
-      isLoadingMoreRef.current = false;
-    }
-  }, [isFetchingPreviousPage]);
-
-  useEffect(() => {
-    rowVirtualizer.scrollToIndex(messages.length - 1, {
-      // align: "end",
-    });
-  }, []);
-
-  // Auto-scroll to bottom when new messages arrive
-  useEffect(() => {
-    const container = messagesContainerRef.current;
-    if (!container || isFetchingPreviousPage) return;
-
-    // Only auto-scroll if user is already near the bottom
-    const isNearBottom =
-      container.scrollHeight - container.scrollTop - container.clientHeight <
-      100;
-
-    if (isNearBottom) {
-      container.scrollTop = container.scrollHeight;
-    }
-  }, [messages.length, isFetchingPreviousPage]);
+  // Memoize the reversed array to avoid unnecessary re-renders or calculations
+  const reversedMessages = useMemo(() => [...messages].reverse(), [messages]);
 
   const rowVirtualizer = useVirtualizer({
-    count: messages.length,
+    count: reversedMessages.length,
     getScrollElement: () => messagesContainerRef.current,
-    estimateSize: () => 100,
+    estimateSize: () => 100, // Estimate row height
     overscan: 10,
+    onChange: (_instance) => {
+      // Logic for unread badges could go here
+    },
   });
 
   const virtualItems = rowVirtualizer.getVirtualItems();
-  const totalSize = rowVirtualizer.getTotalSize();
 
-  // Fetch previous page when scrolling near top
+  // 2. INFINITE SCROLL (Load Older Messages)
+  // With scaleY(-1), "End" of the list (index N) is visually at the TOP.
+  // We check if we are scrolling near the end (visually top).
   useEffect(() => {
-    const [firstItem] = virtualItems;
+    const lastItem = virtualItems[virtualItems.length - 1];
+    if (!lastItem) return;
 
-    if (!firstItem) {
-      return;
-    }
-
-    if (firstItem.index <= 5 && hasPreviousPage && !isFetchingPreviousPage) {
+    // Logic: If the last visible item (highest index) is near the actual total count
+    // This happens when the user scrolls "Up" (visually) -> "Down" (logically in virtualizer)
+    if (
+      lastItem.index >= reversedMessages.length - 1 &&
+      hasPreviousPage &&
+      !isFetchingPreviousPage
+    ) {
       fetchPreviousPage();
     }
   }, [
     virtualItems,
+    reversedMessages.length,
     hasPreviousPage,
     isFetchingPreviousPage,
     fetchPreviousPage,
   ]);
 
-  const handleSendMessage = (message: string) => {
-    // TODO: Implement sending message with mutation
-    console.log("Send message:", message);
-  };
+  // 3. FIX SCROLL DIRECTION FOR scaleY(-1)
+  // The inversion makes the scroll wheel work backwards. We need to manually intercept and invert it back.
+  useEffect(() => {
+    const container = messagesContainerRef.current;
+    if (!container) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      // We manually apply the scroll delta.
+      // Normally scrolling 'down' (deltaY > 0) increases scrollTop.
+      // But because we want the opposite visual feel (scrolling 'up' to go 'down' into history),
+      // we subtract the delta. Or effectively, we want 'natural' scrolling to feel correct.
+      // Experimentally, subtracting deltaY fixes the "reversed" feeling on touchpads with scaleY(-1).
+      if (e.deltaY !== 0) {
+        e.preventDefault();
+        container.scrollTop -= e.deltaY;
+      }
+    };
+
+    // 'passive: false' is required to use preventDefault()
+    container.addEventListener("wheel", handleWheel, { passive: false });
+
+    return () => {
+      container.removeEventListener("wheel", handleWheel);
+    };
+  }, []);
 
   return (
     <div className="flex flex-col h-screen bg-background">
-      {/* Header */}
       <ChatHeader chat={mockChatHeader} />
 
-      {/* Messages Container */}
       <div
         ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto"
+        className="flex-1 overflow-y-auto thin-scrollbar"
         style={{
-          contain: "strict",
-          overflowAnchor: "none",
+          // INVERT THE CONTAINER
+          // This puts scrollTop: 0 at the VISUAL BOTTOM.
+          transform: "scaleY(-1)",
         }}
       >
-        {/* Loading indicator for older messages */}
-        {isFetchingPreviousPage && (
-          <div className="text-center py-4">
-            <div className="inline-block animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
-          </div>
-        )}
-
         <div
           className="w-full relative"
           style={{
-            height: `${totalSize}px`,
+            height: `${rowVirtualizer.getTotalSize()}px`,
           }}
         >
-          {virtualItems.map((virtualItem) => (
-            <div
-              key={virtualItem.key}
-              className="absolute top-0 left-0 w-full"
-              style={{
-                transform: `translateY(${virtualItem.start}px)`,
-              }}
-            >
+          {virtualItems.map((virtualItem) => {
+            const message = reversedMessages[virtualItem.index];
+
+            return (
               <div
-                ref={rowVirtualizer.measureElement}
-                data-index={virtualItem.index}
-                className="px-4 pb-3"
+                key={virtualItem.key}
+                className="absolute top-0 left-0 w-full"
+                style={{
+                  height: `${virtualItem.size}px`,
+                  transform: `translateY(${virtualItem.start}px)`,
+                }}
               >
-                <MessageBubble
-                  message={messages[virtualItem.index]}
-                  isCurrentUserMessage={
-                    messages[virtualItem.index].senderId === currentUserId
-                  }
-                />
+                {/* 
+                  INVERT THE CONTENT BACK 
+                  So the text isn't upside down.
+                */}
+                <div
+                  ref={rowVirtualizer.measureElement}
+                  data-index={virtualItem.index}
+                  className="px-4 pb-3"
+                  style={{ transform: "scaleY(-1)" }}
+                >
+                  <MessageBubble
+                    message={message}
+                    isCurrentUserMessage={message.senderId === currentUserId}
+                  />
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
-      <MessageInput onSendMessage={handleSendMessage} />
+      <MessageInput onSendMessage={() => {}} />
     </div>
   );
 }
