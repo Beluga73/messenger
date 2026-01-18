@@ -44,5 +44,39 @@ public class MessageController(IMessageService messageService) : ControllerBase
             return BadRequest(e.Message);
         }
     }
+
+    [HttpGet]
+    [Route("conversations/{conversationId}")]
+    public async Task<IActionResult> GetConversation(Guid conversationId)
+    {
+        try
+        {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
+                                    ?? throw new Exception("User not authenticated"));
+            var conversation = await messageService.GetConversationAsync(conversationId, userId);
+            return Ok(conversation);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+
+    [HttpPost]
+    [Route("conversations")]
+    public async Task<IActionResult> CreateConversation([FromBody] CreateConversationDto conversationDto)
+    {
+        try
+        {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
+                                    ?? throw new Exception("User not authenticated"));
+            var conversation = await messageService.CreateConversationAsync(userId, conversationDto);
+            return Ok(conversation);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
 }
 

@@ -91,6 +91,50 @@ public class MessageService : IMessageService
         return conversations.Select(c => new ConversationDto(c, userId)).ToList();
     }
 
+    public async Task<ConversationDto> GetConversationAsync(Guid conversationId, Guid userId)
+    {
+        var conversation = await _conversationRepository.GetConversationByIdAsync(conversationId);
+        if (conversation == null)
+            throw new Exception("Conversation not found");
+
+        if (conversation.User1Id != userId && conversation.User2Id != userId)
+            throw new Exception("Unauthorized access to conversation");
+
+        return new ConversationDto(conversation, userId);
+    }
+
+    public async Task<ConversationDto> CreateConversationAsync(Guid creatorId, CreateConversationDto conversationDto)
+    {
+        if (conversationDto.ParticipantIds.Count != 2 || conversationDto.IsGroup)
+            throw new Exception("Only 1-on-1 conversations are currently supported");
+
+        if (!conversationDto.ParticipantIds.Contains(creatorId))
+            throw new Exception("Creator must be a participant");
+
+        var user1Id = creatorId;
+        var user2Id = conversationDto.ParticipantIds.First(id => id != creatorId);
+
+        // Check if conversation already exists
+        var existingConversation = await _conversationRepository.GetConversationByUsersAsync(user1Id, user2Id);
+        if (existingConversation != null)
+            throw new Exception("Conversation already exists");
+
+        var user1 = await _userRepository.GetUserByIdAsync(user1Id) ?? throw new Exception("Creator not found");
+        var user2 = await _userRepository.GetUserByIdAsync(user2Id) ?? throw new Exception("Participant not found");
+
+        var conversation = new Conversation
+        {
+            User1Id = user1Id,
+            User1 = user1,
+            User2Id = user2Id,
+            User2 = user2
+        };
+
+        conversation = await _conversationRepository.CreateConversationAsync(conversation);
+
+        return new ConversationDto(conversation, creatorId);
+    }
+
     public async Task MarkAsReadAsync(Guid conversationId, Guid userId)
     {
         var conversation = await _conversationRepository.GetConversationByIdAsync(conversationId);
