@@ -10,6 +10,7 @@ import {
   useMessages,
   flattenMessages,
 } from "@/features/chat/hooks/useMessages";
+import { useConversation } from "@/features/chat/hooks/useConversation";
 
 // This is bad, rewrite with sth else
 const getCurrentUser = (jwtToken: string | null) => {
@@ -23,20 +24,26 @@ const getCurrentUser = (jwtToken: string | null) => {
   }
 };
 
-// Mock data for now
-const mockChatHeader: ChatHeaderData = {
-  id: "1",
-  title: "John Doe",
-  image: "",
-  isGroup: false,
-  lastSeenOnline: new Date(Date.now() - 300000), // 5 min ago
-};
-
 export function ChatWindow() {
   const { id: conversationId } = useParams<{ id: string }>();
+  const { data: conversation } = useConversation(conversationId);
+
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const { jwtToken } = useTokenStore();
   let currentUserId = getCurrentUser(jwtToken);
+
+  const chatHeaderData: ChatHeaderData = useMemo(() => {
+    return {
+      id: conversation?.id || conversationId || "",
+      title: conversation?.userName || "Loading...",
+      image: conversation?.userAvatarUrl || "",
+      isGroup: false,
+    };
+  }, [conversation, conversationId]);
+
+  const handleSearch = () => {
+    // TODO: implement search
+  };
 
   const { data, fetchPreviousPage, hasPreviousPage, isFetchingPreviousPage } =
     useMessages(conversationId!);
@@ -111,8 +118,7 @@ export function ChatWindow() {
 
   return (
     <div className="flex flex-col h-screen bg-background">
-      <ChatHeader chat={mockChatHeader} />
-
+      <ChatHeader chat={chatHeaderData} onSearch={handleSearch} />
       <div
         ref={messagesContainerRef}
         className="flex-1 overflow-y-auto thin-scrollbar"
@@ -160,7 +166,6 @@ export function ChatWindow() {
           })}
         </div>
       </div>
-
       <MessageInput onSendMessage={() => {}} />
     </div>
   );
