@@ -5,19 +5,19 @@ import {
 } from "@/shared/components/ui/avatar";
 import { Badge } from "@/shared/components/ui/badge";
 import { formatChatTime } from "@/shared/lib/utils";
-import { ChatItem as ChatItemType } from "@/features/chat/types";
+import { Conversation } from "@/features/chat/types";
 
 interface ChatItemProps {
-  chat: ChatItemType;
+  chat: Conversation;
   handleClick: () => void;
   selected?: boolean;
 }
 
 export function ChatItem({ chat, handleClick, selected = false }: ChatItemProps) {
   const truncatedMessage =
-    chat.lastMessage && chat.lastMessage.length > 30
-      ? `${chat.lastMessage.slice(0, 30).trim()}...`
-      : chat.lastMessage || "No messages yet";
+    chat.lastMessage?.content && chat.lastMessage.content.length > 30
+      ? `${chat.lastMessage.content.slice(0, 30).trim()}...`
+      : chat.lastMessage?.content || "No messages yet";
 
   const lastMessageDate = new Date(chat.lastMessageAt);
 

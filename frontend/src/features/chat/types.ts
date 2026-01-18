@@ -1,26 +1,22 @@
-export interface ChatItem {
+export interface Conversation {
   id: string;
   userId: string;
   userName: string;
   userAvatarUrl: string;
-  lastMessage: string | null;
+  lastMessage: Message | null;
   lastMessageAt: string;
   unreadCount: number;
 }
 
 export interface Message {
   id: string;
-  content: string;
+  conversationId: string;
   senderId: string;
   senderName: string;
-  timestamp: Date;
+  content: string;
+  sentAt: string;
   isRead: boolean;
-  isFromMe: boolean;
-  replyTo?: {
-    id: string;
-    content: string;
-    senderName: string;
-  };
+  readAt?: string;
 }
 
 // TODO: move that directly in ChatWindow file?
