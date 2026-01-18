@@ -12,6 +12,11 @@ import {
 } from "@/features/chat/hooks/useMessages";
 import { useConversation } from "@/features/chat/hooks/useConversation";
 
+/**
+ * TODO: break down in smaller smart components (Header, MessageSender)
+ * Because this component will grow massive and would be hard to follow
+ */
+
 // This is bad, rewrite with sth else
 const getCurrentUser = (jwtToken: string | null) => {
   if (!jwtToken) return;
