@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -18,18 +18,27 @@ export function ChatList() {
   const navigate = useNavigate();
   const { id } = useParams<{ id?: string }>();
 
+  useEffect(() => {
+    const handleClick = () => {
+      setSearchQuery("");
+    };
+
+    document.addEventListener("click", handleClick, {});
+    return () => document.removeEventListener("click", handleClick);
+  }, []);
+
   if (isPending) {
     return <ChatListSkeleton />;
   }
 
   return (
-    <div className="relative h-full">
-      <div className="p-4 border-b relative">
+    <div className="relative flex flex-col h-full">
+      <div className="chat-header relative" onClick={(e) => e.stopPropagation()}>
         <SearchBar handleSubmit={setSearchQuery} placeholder="Search chats..." />
 
         {/* Search Dropdown - appears below search bar */}
         {searchQuery && (
-          <div className="absolute top-full left-4 right-4 bg-background border rounded-md shadow-lg z-20 max-h-64 overflow-auto p-1">
+          <div className="absolute top-3/4 left-4 right-4 bg-background border rounded-md shadow-lg z-20 max-h-64 overflow-auto p-1">
             <ScrollArea className="max-h-64">
               {isSearching ? (
                 <div className="p-2">
@@ -66,22 +75,24 @@ export function ChatList() {
           </div>
         )}
       </div>
-      <ScrollArea className="h-full w-full">
-        <div className="space-y-0">
-          {!convos || convos.length === 0 ? (
-            <p className="text-sm text-muted-foreground p-4">No conversations yet</p>
-          ) : (
-            convos.map((convo) => (
-              <ChatItem
-                key={convo.id}
-                chat={convo}
-                handleClick={() => navigate(`/chats/${convo.id}`)}
-                selected={!!id && convo.id === id}
-              />
-            ))
-          )}
-        </div>
-      </ScrollArea>
+      <div className="flex-1 min-h-0">
+        <ScrollArea className="h-full">
+          <div className="space-y-0">
+            {!convos || convos.length === 0 ? (
+              <p className="text-sm text-muted-foreground p-4">No conversations yet</p>
+            ) : (
+              convos.map((convo) => (
+                <ChatItem
+                  key={convo.id}
+                  chat={convo}
+                  handleClick={() => navigate(`/chats/${convo.id}`)}
+                  selected={!!id && convo.id === id}
+                />
+              ))
+            )}
+          </div>
+        </ScrollArea>
+      </div>
     </div>
   );
 }

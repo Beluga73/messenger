@@ -1,5 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
+
 import { MessagesSquare, Phone, Settings } from "lucide-react";
+
 import { cn } from "@/shared/lib/utils";
 
 const navItems = [
@@ -28,16 +30,13 @@ export const NavBar = ({ navClassName }: NavBarProps) => {
   const location = useLocation();
 
   return (
-    <nav className={cn("w-full h-12 border-t-1", navClassName)}>
+    <nav className={cn("w-full border-t-1 chat-footer items-center mb-0", navClassName)}>
       <ul className="flex w-full h-full">
         {navItems.map(({ href, image: Icon }) => (
           <li key={href} className="flex-1">
             <Link
               to={href}
-              className={cn(
-                "center-children h-full",
-                location.pathname === href && "text-primary"
-              )}
+              className={cn("center-children h-full", location.pathname === href && "text-primary")}
             >
               <Icon className="size-6" />
             </Link>

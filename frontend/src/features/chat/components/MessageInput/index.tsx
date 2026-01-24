@@ -73,7 +73,7 @@ export const MessageInput: FC = memo(() => {
   };
 
   return (
-    <div className="flex items-end gap-2 p-4 border-t border-border bg-background">
+    <div className="chat-footer items-end pb-4 gap-2">
       <Popover open={openEmoji} onOpenChange={setOpenEmoji} modal={false}>
         <PopoverTrigger asChild>
           <Button variant="ghost" size="icon" className="shrink-0" disabled={isLoading}>

@@ -57,7 +57,7 @@ export function ChatHeader() {
 
   return (
     <>
-      <div className="flex items-center justify-between p-4 border-b border-border bg-background">
+      <div className="chat-header justify-between">
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <Avatar className="h-12 w-12">
             <AvatarImage src={chatHeaderData.image} alt={chatHeaderData.title} />
