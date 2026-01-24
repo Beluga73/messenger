@@ -1,36 +1,37 @@
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
+
+import { Link } from "react-router-dom";
+
+import {
+  type CountryCallingCode,
+  ParseError,
+  type PhoneNumber,
+  getCountryCallingCode,
+  parsePhoneNumberWithError,
+} from "libphonenumber-js";
+import { Phone } from "lucide-react";
 import ReCAPTCHA from "react-google-recaptcha";
+
 import { CountryCombobox } from "@/features/auth/components";
+import { usePhoneNumberStore } from "@/features/auth/hooks/usePhoneNumberStore";
+import { useRegisterStepStore } from "@/features/auth/hooks/useRegisterStepStore";
+import { useSubmitPhoneNumber } from "@/features/auth/hooks/useSubmitPhoneNumber";
+import { Button } from "@/shared/components/ui/button";
 import {
   Field,
-  FieldLabel,
   FieldGroup,
+  FieldLabel,
   FieldSeparator,
   FieldSet,
 } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
-import { Button } from "@/shared/components/ui/button";
-import {
-  getCountryCallingCode,
-  parsePhoneNumberWithError,
-  ParseError,
-  type CountryCallingCode,
-  type PhoneNumber,
-} from "libphonenumber-js";
-import { useSubmitPhoneNumber } from "@/features/auth/hooks/useSubmitPhoneNumber";
-import { useRegisterStepStore } from "@/features/auth/hooks/useRegisterStepStore";
-import { usePhoneNumberStore } from "@/features/auth/hooks/usePhoneNumberStore";
-import { Phone } from "lucide-react";
-import { Link } from "react-router-dom";
 
 export const RegisterForm = () => {
   const { setStep } = useRegisterStepStore();
   const { setVerificationData } = usePhoneNumberStore();
   const { mutateAsync, isPending } = useSubmitPhoneNumber();
   const [nationalNumber, setNationalNumber] = useState("");
-  const [callingCode, setCallingCode] = useState<CountryCallingCode>(
-    getCountryCallingCode("PL")
-  );
+  const [callingCode, setCallingCode] = useState<CountryCallingCode>(getCountryCallingCode("PL"));
   const [error, setError] = useState<Error | null>(null);
   // No need to keep recaptchaToken in state for v3
   const recaptchaRef = useRef<ReCAPTCHA>(null);
@@ -42,9 +43,7 @@ export const RegisterForm = () => {
 
     // Validating phone number
     try {
-      phoneNumberObject = parsePhoneNumberWithError(
-        `+${callingCode}${nationalNumber}`
-      );
+      phoneNumberObject = parsePhoneNumberWithError(`+${callingCode}${nationalNumber}`);
       if (!phoneNumberObject.isValid()) {
         setError(new Error("Enter a valid phone number!"));
         return;
@@ -100,9 +99,7 @@ export const RegisterForm = () => {
             <FieldGroup>
               <Field>
                 <FieldLabel>Country</FieldLabel>
-                <CountryCombobox
-                  setCallingCode={setCallingCode}
-                ></CountryCombobox>
+                <CountryCombobox setCallingCode={setCallingCode}></CountryCombobox>
               </Field>
               <Field>
                 <FieldLabel>Phone Number</FieldLabel>
@@ -136,12 +133,10 @@ export const RegisterForm = () => {
               size="invisible"
               badge="bottomright"
             />
-            <Button disabled={isPending}>
-              {isPending ? "Submitting..." : "Register"}
-            </Button>
+            <Button disabled={isPending}>{isPending ? "Submitting..." : "Register"}</Button>
           </Field>
           <div className="mt-4 text-center text-sm text-muted-foreground">
-            Don't have an account? Login{" "}
+            Don&apos;t have an account? Login{" "}
             <Link to="/login" className="text-primary underline">
               here
             </Link>

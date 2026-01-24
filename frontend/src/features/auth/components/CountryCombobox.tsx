@@ -1,10 +1,9 @@
+import { memo, useEffect, useState } from "react";
 
-import { useState, useEffect, memo } from "react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/shared/components/ui/popover";
+import { type CountryCallingCode, getCountries, getCountryCallingCode } from "libphonenumber-js";
+import { Check, ChevronsUpDown, Globe } from "lucide-react";
+
+import { Button } from "@/shared/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -13,14 +12,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/shared/components/ui/command";
-
-import { Button } from "@/shared/components/ui/button";
-import {
-  type CountryCallingCode,
-  getCountries,
-  getCountryCallingCode,
-} from "libphonenumber-js";
-import { Check, ChevronsUpDown, Phone, Globe, Search } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 
 export const CountryCombobox = memo(
   ({
@@ -31,10 +23,7 @@ export const CountryCombobox = memo(
     const [open, setOpen] = useState(false);
     const [selectedCountry, setSelectedCountry] = useState("Poland");
     // countries ex. - { "Belarus": 375, "Russia": 7 }
-    const [countries, setCountries] = useState<Map<
-      string,
-      CountryCallingCode
-    > | null>(null);
+    const [countries, setCountries] = useState<Map<string, CountryCallingCode> | null>(null);
 
     useEffect(() => {
       const regionNamesInEnglish = new Intl.DisplayNames(["en"], {
@@ -79,9 +68,7 @@ export const CountryCombobox = memo(
                       <span className="flex items-center justify-between w-full">
                         <span>
                           {name}
-                          <span className="text-sm text-muted-foreground">
-                            +{code}
-                          </span>
+                          <span className="text-sm text-muted-foreground">+{code}</span>
                         </span>
                         {selectedCountry === name && <Check className="ml-2" />}
                       </span>

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
+
 import { Button } from "@/shared/components/ui/button";
-import { Field, FieldLabel, FieldGroup, FieldSet } from "@/shared/components/ui/field";
+import { Field, FieldGroup, FieldLabel, FieldSet } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
 
 export default function LoginPage() {
@@ -32,7 +33,7 @@ export default function LoginPage() {
         </FieldGroup>
 
         <div className="mt-4 text-center text-sm text-muted-foreground">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{" "}
           <Link to="/register" className="text-primary underline">
             Register here
           </Link>
