@@ -1,1 +1,0 @@
-export { MessageDateSeparator } from "./MessageDateSeparator";

@@ -1,17 +1,20 @@
-import { ScrollArea } from "@/shared/components/ui/scroll-area";
-import { ChatItem, SearchItem } from "./index";
-import { useConversations, useSearchUsers } from "../hooks";
-import { ChatListSkeleton } from "./ChatListSkeleton";
-import { useNavigate, useParams } from "react-router-dom";
-import { SearchBar } from "@/shared/components/SearchBar";
 import { useState } from "react";
+
+import { useNavigate, useParams } from "react-router-dom";
+
+import { SearchBar } from "@/shared/components/SearchBar";
+import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import { Skeleton } from "@/shared/components/ui/skeleton";
+
+import { useConversations, useSearchUsers } from "../../hooks";
+import { ChatItem } from "./ChatItem";
+import { ChatListSkeleton } from "./ChatListSkeleton";
+import { SearchItem } from "./SearchItem";
 
 export function ChatList() {
   const { data: convos, isPending } = useConversations();
   const [searchQuery, setSearchQuery] = useState("");
-  const { data: searchResults, isPending: isSearching } =
-    useSearchUsers(searchQuery);
+  const { data: searchResults, isPending: isSearching } = useSearchUsers(searchQuery);
   const navigate = useNavigate();
   const { id } = useParams<{ id?: string }>();
 
@@ -22,10 +25,7 @@ export function ChatList() {
   return (
     <div className="relative h-full">
       <div className="p-4 border-b relative">
-        <SearchBar
-          handleSubmit={setSearchQuery}
-          placeholder="Search chats..."
-        />
+        <SearchBar handleSubmit={setSearchQuery} placeholder="Search chats..." />
 
         {/* Search Dropdown - appears below search bar */}
         {searchQuery && (
@@ -59,9 +59,7 @@ export function ChatList() {
                 </div>
               ) : (
                 <div className="p-2">
-                  <p className="text-xs text-muted-foreground text-center">
-                    No users found
-                  </p>
+                  <p className="text-xs text-muted-foreground text-center">No users found</p>
                 </div>
               )}
             </ScrollArea>
@@ -71,9 +69,7 @@ export function ChatList() {
       <ScrollArea className="h-full w-full">
         <div className="space-y-0">
           {!convos || convos.length === 0 ? (
-            <p className="text-sm text-muted-foreground p-4">
-              No conversations yet
-            </p>
+            <p className="text-sm text-muted-foreground p-4">No conversations yet</p>
           ) : (
             convos.map((convo) => (
               <ChatItem
