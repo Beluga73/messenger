@@ -6,7 +6,7 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { RootProviders } from "@/providers";
+import { RootProviders } from "@/stores/providers";
 import { ProtectedRoute } from "@/shared/components/ProtectedRoute";
 import ChatsPage from "@/pages/ChatsPage";
 import ChatDetailPage from "@/pages/ChatDetailPage";
