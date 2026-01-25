@@ -135,6 +135,35 @@ public class MessageService : IMessageService
         return new ConversationDto(conversation, creatorId);
     }
 
+    public async Task<ConversationDto> StartConversationAsync(Guid userId, Guid targetUserId)
+    {
+        if (userId == targetUserId)
+            throw new Exception("Cannot start conversation with yourself");
+
+        // Check if conversation already exists
+        var existingConversation = await _conversationRepository.GetConversationByUsersAsync(userId, targetUserId);
+        if (existingConversation != null)
+        {
+            return new ConversationDto(existingConversation, userId);
+        }
+
+        var user = await _userRepository.GetUserByIdAsync(userId) ?? throw new Exception("User not found");
+        var targetUser = await _userRepository.GetUserByIdAsync(targetUserId) ?? throw new Exception("Target user not found");
+
+        var conversation = new Conversation
+        {
+            User1Id = userId,
+            User1 = user,
+            User2Id = targetUserId,
+            User2 = targetUser,
+            LastMessageAt = DateTime.UtcNow
+        };
+
+        conversation = await _conversationRepository.CreateConversationAsync(conversation);
+
+        return new ConversationDto(conversation, userId);
+    }
+
     public async Task MarkAsReadAsync(Guid conversationId, Guid userId)
     {
         var conversation = await _conversationRepository.GetConversationByIdAsync(conversationId);

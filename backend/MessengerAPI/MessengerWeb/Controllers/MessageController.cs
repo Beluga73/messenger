@@ -78,5 +78,22 @@ public class MessageController(IMessageService messageService) : ControllerBase
             return BadRequest(e.Message);
         }
     }
+
+    [HttpPost]
+    [Route("conversations/start")]
+    public async Task<IActionResult> StartConversation([FromBody] StartConversationDto startConversationDto)
+    {
+        try
+        {
+            var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
+                                    ?? throw new Exception("User not authenticated"));
+            var conversation = await messageService.StartConversationAsync(userId, startConversationDto.TargetUserId);
+            return Ok(conversation);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
 }
 
