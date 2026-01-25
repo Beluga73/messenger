@@ -5,8 +5,9 @@ import { useParams } from "react-router-dom";
 import { InfiniteData, useQueryClient } from "@tanstack/react-query";
 import { useVirtualizer } from "@tanstack/react-virtual";
 
-import { flattenMessages, useMessages } from "@/features/chat/hooks/useMessages";
-import { FetchMessagesResponse } from "@/features/chat/lib/fetchMessages";
+import { useMessages } from "@/features/chat/hooks";
+import { FetchMessagesResponse } from "@/features/chat/lib/api";
+import { flattenMessages } from "@/features/chat/lib/utils";
 import { Message } from "@/features/chat/types";
 import { useSignalRStore } from "@/stores/signalRStore";
 import { useTokenStore } from "@/stores/tokenStore";

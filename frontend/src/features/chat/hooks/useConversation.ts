@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchConversation } from "../lib/fetchConversation";
+
+import { fetchConversation } from "../lib/api";
 
 export const useConversation = (conversationId: string | undefined) => {
   return useQuery({

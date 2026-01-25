@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { searchUsersByUsername } from "../lib/searchUsersByUsername";
+
+import { searchUsersByUsername } from "../lib/api";
 
 export function useSearchUsers(query: string) {
   return useQuery({

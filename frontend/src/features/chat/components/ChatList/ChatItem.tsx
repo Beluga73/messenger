@@ -4,7 +4,7 @@ import {
   AvatarImage,
 } from "@/shared/components/ui/avatar";
 import { Badge } from "@/shared/components/ui/badge";
-import { formatChatTime } from "@/shared/lib/utils";
+import { formatChatTime } from "@/features/chat/lib/formatters";
 import { Conversation } from "@/features/chat/types";
 
 interface ChatItemProps {

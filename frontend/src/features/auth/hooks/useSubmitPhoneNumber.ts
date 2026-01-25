@@ -1,5 +1,6 @@
-import { useMutation, type UseMutationOptions } from "@tanstack/react-query";
-import { sendPhoneNumber } from "../lib/sendPhoneNumber";
+import { type UseMutationOptions, useMutation } from "@tanstack/react-query";
+
+import { sendPhoneNumber } from "../lib/api";
 
 type SubmitPhoneNumberArgs = {
   phoneNumber: string;
@@ -7,12 +8,7 @@ type SubmitPhoneNumberArgs = {
 };
 
 export const useSubmitPhoneNumber = (
-  options?: UseMutationOptions<
-    { sessionInfo: string },
-    Error,
-    SubmitPhoneNumberArgs,
-    unknown
-  >
+  options?: UseMutationOptions<{ sessionInfo: string }, Error, SubmitPhoneNumberArgs, unknown>
 ) =>
   useMutation({
     mutationFn: sendPhoneNumber,

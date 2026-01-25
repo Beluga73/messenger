@@ -1,5 +1,6 @@
-import { useMutation, type UseMutationOptions } from "@tanstack/react-query";
-import { verifyOtp } from "../lib/verifyOtp";
+import { type UseMutationOptions, useMutation } from "@tanstack/react-query";
+
+import { verifyOtp } from "../lib/api";
 
 type VerifyOtpVariables = {
   phoneNumber: string;
@@ -13,12 +14,7 @@ type VerifyOtpResponse = {
 };
 
 export const useSubmitOtp = (
-  options?: UseMutationOptions<
-    VerifyOtpResponse,
-    Error,
-    VerifyOtpVariables,
-    unknown
-  >
+  options?: UseMutationOptions<VerifyOtpResponse, Error, VerifyOtpVariables, unknown>
 ) =>
   useMutation({
     mutationFn: verifyOtp,
