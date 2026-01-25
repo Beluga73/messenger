@@ -1,7 +1,10 @@
 import { useEffect } from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useThemeStore } from "@/stores/themeStore";
 import type { ReactNode } from "react";
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+import { Toaster } from "@/shared/components/ui/sonner";
+import { useThemeStore } from "@/stores/themeStore";
 
 export const RootProviders = ({ children }: { children: ReactNode }) => {
   const queryClient = new QueryClient();
@@ -12,6 +15,9 @@ export const RootProviders = ({ children }: { children: ReactNode }) => {
   }, [initTheme]);
 
   return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      <Toaster position="top-center" richColors />
+      {children}
+    </QueryClientProvider>
   );
 };
