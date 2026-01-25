@@ -9,6 +9,7 @@ public interface IMessageService
     Task<List<ConversationDto>> GetConversationsAsync(Guid userId);
     Task<ConversationDto> GetConversationAsync(Guid conversationId, Guid userId);
     Task<ConversationDto> CreateConversationAsync(Guid creatorId, CreateConversationDto conversationDto);
+    Task<ConversationDto> StartConversationAsync(Guid userId, Guid targetUserId);
     Task MarkAsReadAsync(Guid conversationId, Guid userId);
 }
 
