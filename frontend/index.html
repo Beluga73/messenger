@@ -1,10 +1,27 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Messenger</title>
+    <script>
+      (function () {
+        try {
+          // 1. Manually check the same key Zustand uses
+          const storage = JSON.parse(localStorage.getItem("theme-storage"));
+          const theme = storage?.state?.theme;
+
+          // 2. Check system preference if no saved theme
+          const supportDarkMode = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+          if (theme === "dark" || (!theme && supportDarkMode)) {
+            document.documentElement.classList.add("dark");
+            document.documentElement.style.colorScheme = "dark";
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
