@@ -11,6 +11,10 @@
         condition: service_healthy
     networks:
       - messenger-network
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+
 
   postgresdb:
     image: postgres:alpine
