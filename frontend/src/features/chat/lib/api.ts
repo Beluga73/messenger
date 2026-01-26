@@ -13,11 +13,11 @@ export interface FetchMessagesResponse {
 }
 
 export const fetchConversation = async (conversationId: string): Promise<Conversation> => {
-  return api.get(`/api/messages/conversations/${conversationId}`);
+  return api.get<Conversation>(`/api/messages/conversations/${conversationId}`);
 };
 
 export const fetchConversations = async (): Promise<Conversation[]> => {
-  return api.get("/api/messages/conversations");
+  return api.get<Conversation[]>("/api/messages/conversations");
 };
 
 export const fetchMessages = async ({
@@ -36,5 +36,12 @@ export const fetchMessages = async ({
 };
 
 export async function searchUsersByUsername(query: string): Promise<SearchUserResult[]> {
-  return api.get(`/Search/by-name?query=${encodeURIComponent(query)}`);
+  return api.get<SearchUserResult[]>(`/api/search/username?query=${encodeURIComponent(query)}`);
 }
+
+export const createConversation = async (targetUserId: string): Promise<Conversation> => {
+  const body = {
+    targetUserId,
+  };
+  return api.post<Conversation>("/api/messages/conversations/start", body);
+};

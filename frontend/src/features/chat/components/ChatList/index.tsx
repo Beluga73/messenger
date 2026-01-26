@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -17,15 +17,23 @@ export function ChatList() {
   const { data: searchResults, isPending: isSearching } = useSearchUsers(searchQuery);
   const navigate = useNavigate();
   const { id } = useParams<{ id?: string }>();
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleClick = () => {
-      setSearchQuery("");
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsDropdownVisible(false);
+      }
     };
 
-    document.addEventListener("click", handleClick, {});
-    return () => document.removeEventListener("click", handleClick);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  const handleFocus = () => {
+    setIsDropdownVisible(true);
+  };
 
   if (isPending) {
     return <ChatListSkeleton />;
@@ -33,11 +41,15 @@ export function ChatList() {
 
   return (
     <div className="relative flex flex-col h-full">
-      <div className="chat-header relative" onClick={(e) => e.stopPropagation()}>
-        <SearchBar handleSubmit={setSearchQuery} placeholder="Search chats..." />
+      {/* Can this header be extracted in separate component  */}
+      <div className="chat-header relative" ref={containerRef}>
+        <SearchBar
+          handleSubmit={setSearchQuery}
+          handleFocus={handleFocus}
+          placeholder="Search chats..."
+        />
 
-        {/* Search Dropdown - appears below search bar */}
-        {searchQuery && (
+        {isDropdownVisible && searchQuery && (
           <div className="absolute top-3/4 left-4 right-4 bg-background border rounded-md shadow-lg z-20 max-h-64 overflow-auto p-1">
             <ScrollArea className="max-h-64">
               {isSearching ? (
@@ -59,9 +71,7 @@ export function ChatList() {
                       key={user.id}
                       user={user}
                       handleClick={() => {
-                        // TODO: Handle user selection - start conversation or navigate
-                        console.log("Selected user:", user);
-                        setSearchQuery(""); // Close dropdown after selection
+                        setSearchQuery("");
                       }}
                     />
                   ))}
@@ -75,6 +85,7 @@ export function ChatList() {
           </div>
         )}
       </div>
+
       <div className="flex-1 min-h-0">
         <ScrollArea className="h-full">
           <div className="space-y-0">
