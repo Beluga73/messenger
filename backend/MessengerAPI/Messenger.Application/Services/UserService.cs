@@ -65,7 +65,7 @@ public class UserService(IUserRepository usersRepository, AuthenticationService 
         await usersRepository.LogoutUser(userid);
     }
 
-    public async Task<List<User>> SearchUsersByNameSubstring(string query)
+    public async Task<List<User>> SearchUsersByNameSubstring(string query, Guid userId)
     {
         var allUsers = await usersRepository.GetAllUsersAsync();
         
@@ -76,6 +76,7 @@ public class UserService(IUserRepository usersRepository, AuthenticationService 
         return allUsers
             .Where(u => (u.Username != null && u.Username.ToLower().Contains(lowerQuery)) ||
                         (u.Name != null && u.Name.ToLower().Contains(lowerQuery)))
+            .Where(u => u.Id != userId)
             .ToList();
     }
 }
