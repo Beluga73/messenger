@@ -84,8 +84,8 @@ export const RegisterForm = () => {
       setVerificationData(phoneNumber, response.sessionInfo);
       setStep("verify");
       recaptcha.reset();
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error("Request failed."));
+    } catch {
+      // Error is handled by the hook's toast
     }
   };
 

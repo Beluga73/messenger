@@ -1,4 +1,5 @@
 import { type UseMutationOptions, useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 import { sendPhoneNumber } from "../lib/api";
 
@@ -11,6 +12,9 @@ export const useSubmitPhoneNumber = (
   options?: UseMutationOptions<{ sessionInfo: string }, Error, SubmitPhoneNumberArgs, unknown>
 ) =>
   useMutation({
-    mutationFn: sendPhoneNumber,
     ...options,
+    mutationFn: sendPhoneNumber,
+    onError: (error) => {
+      toast.error(error.message || "Verification failed");
+    },
   });
