@@ -1,4 +1,5 @@
 import js from "@eslint/js";
+import tanstackQuery from "@tanstack/eslint-plugin-query";
 // <--- The new standard way
 import prettier from "eslint-config-prettier";
 import react from "eslint-plugin-react";
@@ -44,6 +45,7 @@ export default defineConfig([
       react,
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
+      "@tanstack/query": tanstackQuery,
     },
     settings: {
       react: { version: "detect" },
@@ -55,6 +57,9 @@ export default defineConfig([
       "react/react-in-jsx-scope": "off",
       "react/prop-types": "off",
       "react/display-name": "off",
+
+      // TanStack Query
+      ...tanstackQuery.configs.recommended.rules,
 
       // Fast Refresh
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
