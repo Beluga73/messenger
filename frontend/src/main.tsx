@@ -1,20 +1,19 @@
 import React from "react";
+
+import { Navigate, Route, BrowserRouter as Router, Routes } from "react-router-dom";
+
 import ReactDOM from "react-dom/client";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
-import { RootProviders } from "@/providers";
-import { ProtectedRoute } from "@/shared/components/ProtectedRoute";
-import ChatsPage from "@/pages/ChatsPage";
-import ChatDetailPage from "@/pages/ChatDetailPage";
-import RegisterPage from "@/pages/RegisterPage";
-import LoginPage from "@/pages/LoginPage";
-import HomePage from "@/pages/HomePage";
+
 import CallsPage from "@/pages/CallsPage";
+import ChatDetailPage from "@/pages/ChatDetailPage";
+import ChatsPage from "@/pages/ChatsPage";
+import HomePage from "@/pages/HomePage";
+import LoginPage from "@/pages/LoginPage";
+import RegisterPage from "@/pages/RegisterPage";
 import SettingsPage from "@/pages/SettingsPage";
+import { ProtectedRoute } from "@/shared/components/ProtectedRoute";
+import { RootProviders } from "@/stores/providers";
+
 import "./index.css";
 
 const App = () => {

@@ -1,5 +1,9 @@
-import { useMutation, type UseMutationOptions } from "@tanstack/react-query";
-import { verifyOtp } from "../lib/verifyOtp";
+import { type UseMutationOptions, useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
+
+import { useTokenStore } from "@/stores/tokenStore";
+
+import { verifyOtp } from "../lib/api";
 
 type VerifyOtpVariables = {
   phoneNumber: string;
@@ -13,14 +17,19 @@ type VerifyOtpResponse = {
 };
 
 export const useSubmitOtp = (
-  options?: UseMutationOptions<
-    VerifyOtpResponse,
-    Error,
-    VerifyOtpVariables,
-    unknown
-  >
-) =>
-  useMutation({
-    mutationFn: verifyOtp,
+  options?: UseMutationOptions<VerifyOtpResponse, Error, VerifyOtpVariables>
+) => {
+  const { setTokens } = useTokenStore();
+
+  return useMutation({
     ...options,
+    mutationFn: verifyOtp,
+    onSuccess: (data) => {
+      setTokens(data.jwtToken, data.refreshToken);
+      toast.success("Verification successful");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Verification failed");
+    },
   });
+};

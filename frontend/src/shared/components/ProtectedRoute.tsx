@@ -1,5 +1,5 @@
-import { useEffect } from "react";
 import { Navigate } from "react-router-dom";
+
 import { useTokenStore } from "@/stores/tokenStore";
 
 interface ProtectedRouteProps {

@@ -1,27 +1,20 @@
 import { type ChangeEvent, FormEvent, useRef, useState } from "react";
+
 import { useNavigate } from "react-router-dom";
+
 import { usePhoneNumberStore } from "@/features/auth/hooks/usePhoneNumberStore";
-import { useTokenStore } from "@/stores/tokenStore";
-import { Input } from "@/shared/components/ui/input";
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-  FieldSet,
-} from "@/shared/components/ui/field";
-import { Button } from "@/shared/components/ui/button";
 import { useSubmitOtp } from "@/features/auth/hooks/useSubmitOtp";
+import { Button } from "@/shared/components/ui/button";
+import { Field, FieldDescription, FieldGroup, FieldSet } from "@/shared/components/ui/field";
+import { Input } from "@/shared/components/ui/input";
 
 const DIGITS = 6;
 
 export const OtpForm = () => {
   const { mutateAsync, isPending } = useSubmitOtp();
   const { phoneNumber, sessionInfo } = usePhoneNumberStore();
-  const { setTokens } = useTokenStore();
   const [otp, setOtp] = useState<string[]>(new Array(DIGITS).fill(""));
-  const inputs = useRef<Array<HTMLInputElement | null>>(
-    new Array(DIGITS).fill(null)
-  );
+  const inputs = useRef<Array<HTMLInputElement | null>>(new Array(DIGITS).fill(null));
   const navigate = useNavigate();
   const [error, setError] = useState<Error | null>(null);
 
@@ -44,10 +37,7 @@ export const OtpForm = () => {
   };
 
   // handle Backspace, Arrow keys, Enter
-  const handleKeyDown = (
-    e: React.KeyboardEvent<HTMLInputElement>,
-    idx: number
-  ) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, idx: number) => {
     const key = e.key;
 
     if (key === "Backspace") {
@@ -78,10 +68,7 @@ export const OtpForm = () => {
     }
   };
 
-  const handlePaste = (
-    e: React.ClipboardEvent<HTMLInputElement>,
-    idx: number
-  ) => {
+  const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>, idx: number) => {
     e.preventDefault();
     const paste = e.clipboardData.getData("text").replace(/\D/g, "");
     if (!paste) return;
@@ -108,20 +95,16 @@ export const OtpForm = () => {
     }
 
     try {
-      const data = await mutateAsync({ code, phoneNumber, sessionInfo });
-      setTokens(data.jwtToken, data.refreshToken);
+      await mutateAsync({ code, phoneNumber, sessionInfo });
       navigate("/chats");
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error("Request failed."));
+    } catch {
+      // Error is handled by the hook's toast
     }
   };
 
   return (
     <main className="h-screen flex justify-center items-center">
-      <form
-        className="w-full max-w-sm px-4 text-center"
-        onSubmit={handleSubmit}
-      >
+      <form className="w-full max-w-sm px-4 text-center" onSubmit={handleSubmit}>
         <FieldGroup>
           <FieldSet>
             <h1 className="text-3xl">Verify your email address</h1>
@@ -159,10 +142,7 @@ export const OtpForm = () => {
             </FieldGroup>
           </FieldSet>
           <Field>
-            <Button
-              type="submit"
-              disabled={isPending || otp.join("").length !== DIGITS}
-            >
+            <Button type="submit" disabled={isPending || otp.join("").length !== DIGITS}>
               {isPending ? "Verifying..." : "Continue"}
             </Button>
           </Field>

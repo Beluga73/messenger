@@ -1,29 +1,25 @@
-export interface ChatItem {
+export interface Conversation {
   id: string;
-  image: string;
-  title: string;
-  lastMessage: string;
-  isFromMe: boolean;
-  isRead: boolean;
-  time: Date;
+  userId: string;
+  userName: string;
+  userAvatarUrl: string;
+  lastMessage: Message | null;
+  lastMessageAt: string;
   unreadCount: number;
 }
 
 export interface Message {
   id: string;
-  content: string;
+  conversationId: string;
   senderId: string;
   senderName: string;
-  timestamp: Date;
+  content: string;
+  sentAt: string;
   isRead: boolean;
-  isFromMe: boolean;
-  replyTo?: {
-    id: string;
-    content: string;
-    senderName: string;
-  };
+  readAt?: string;
 }
 
+// TODO: move that directly in ChatWindow file?
 export interface ChatHeaderData {
   id: string;
   image: string;
@@ -31,4 +27,13 @@ export interface ChatHeaderData {
   isGroup: boolean;
   memberCount?: number;
   lastSeenOnline?: Date;
+}
+
+export interface SearchUserResult {
+  id: string;
+  username: string;
+  name: string | null;
+  phoneNumber: string;
+  avatarUrl: string;
+  status: string | null;
 }

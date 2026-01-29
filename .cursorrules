@@ -1,0 +1,228 @@
+# Messenger App - AI Assistant Context Rules
+
+## Project Overview
+
+A monorepo messenger application with:
+
+- **Frontend**: React 19 + TypeScript + Vite + TailwindCSS (with Biome linting)
+- **Backend**: ASP.NET Core 9.0 with Clean Architecture
+- **Real-time**: SignalR for live messaging
+- **Auth**: JWT + Phone number verification (Twilio)
+- **Storage**: Azure Blob Storage for avatars
+
+## Frontend Architecture (`frontend/src/`)
+
+### Directory Structure
+
+```
+src/
+├── features/
+│   ├── auth/       # Login, Register, Phone verification
+│   ├── chat/       # Chat window, messages, conversations
+│   │   ├── components/
+│   │   ├── hooks/  (useMessages, useConversations, etc)
+│   │   ├── lib/    (API calls, helpers)
+│   │   └── types/  (Message, Conversation, etc)
+│   └── settings/   # User profile settings
+├── pages/          # Full page components (ChatDetailPage, LoginPage, etc)
+├── shared/
+│   ├── components/ (UI buttons, inputs, modals from @radix-ui)
+│   ├── hooks/      (useAuth, useTheme, etc)
+│   └── lib/        (Utilities, helpers)
+├── stores/         # Zustand stores (tokenStore, themeStore)
+└── index.css       # Global styles + Tailwind + custom utilities
+```
+
+### Key Libraries & Patterns
+
+- **@tanstack/react-query**: Infinite queries for pagination (see `useMessages`)
+- **@tanstack/react-virtual**: Virtual scrolling for performance
+- **react-router-dom**: Client routing (v7)
+- **zustand**: Global state (tokens, theme)
+- **@radix-ui/\***: Accessible UI components
+- **lucide-react**: Icon library
+- **TailwindCSS**: Utility-first CSS with Biome formatting
+
+### Naming Conventions
+
+- **Components**: PascalCase, `.tsx`
+- **Hooks**: `use*` prefix, e.g., `useMessages.ts`
+- **Pages**: `*Page.tsx`
+- **Types**: Interface/Type names in `types/` folder, e.g., `types.ts`
+- **Utilities**: camelCase functions in `lib/` or `hooks/`
+- **Stores**: `*Store.ts` using Zustand
+
+### Important Implementation Notes
+
+#### ChatWindow Virtual Scrolling
+
+- Uses `scaleY(-1)` transform on container to invert scroll direction
+- Messages are **reversed** before rendering (newest at index 0)
+- Manual wheel event handler inverts `deltaY` to fix touchpad scrolling
+- **Critical**: Remove `contain: strict` and `flex-col` from container to avoid scroll height miscalculation
+- Virtualizer handles dynamic heights with `measureElement` ref
+
+#### Message Loading
+
+- Infinite scroll: Load older messages when user scrolls to top (visually)
+- Uses `@tanstack/react-query` with `getPreviousPageParam` for backwards pagination
+- `flattenMessages()` utility flattens pages array from `useInfiniteQuery`
+
+#### Authentication
+
+- JWT token stored in `tokenStore` (Zustand)
+- Token decoded client-side to extract `userId`
+- Refresh token handling in `AuthenticationService`
+
+## Backend Architecture (`backend/MessengerAPI/`)
+
+### Project Structure
+
+```
+MessengerAPI/
+├── Messenger.Domain/        # Entities (User, Message, Conversation, etc)
+├── Messenger.Application/   # DTOs, Services, Interfaces
+├── Messenger.Infrastructure/ # DbContext, Repositories, Migrations
+└── MessengerWeb/
+    ├── Controllers/   (Auth, Message, Profile, Search)
+    ├── Hubs/          (MessageHub for SignalR)
+    └── Extensions/    (Dependency injection, Auth setup)
+```
+
+### Key Technologies
+
+- **ASP.NET Core 9.0**
+- **Entity Framework Core**: ORM with PostgreSQL
+- **SignalR**: Real-time WebSocket communication
+- **JWT + Phone Verification**: Twilio for SMS
+- **Azure Blob Storage**: Avatar/image storage
+
+### API Endpoints Structure
+
+- `POST /api/auth/register` - Register with phone
+- `POST /api/auth/verify-phone` - Verify phone OTP
+- `POST /api/auth/refresh-token` - Refresh JWT
+- `GET /api/messages/{conversationId}` - Paginated message history
+- `POST /api/messages` - Send message
+- `GET /api/profile` - Get current user
+- `PUT /api/profile` - Update profile
+
+## Coding Standards
+
+### Frontend
+
+- **TypeScript**: Strict mode enabled (`strict: true`)
+- **Import aliases**: Use `@/` for absolute imports (configured in `tsconfig.json`)
+- **Code style**: Enforced by Biome (`npm run format`)
+- **No unused variables**: Turn on linting rules
+- **Component API**: Prefer composition, avoid prop drilling (use context/Zustand for global state)
+- **Error handling**: Try-catch with user-friendly messages
+- **CSS**: Use TailwindCSS classes, avoid inline styles (except for dynamic transforms)
+
+### Backend
+
+- **C# naming**: PascalCase for classes/methods, camelCase for private fields
+- **Entity relationships**: Define properly in `Configurations/` with FluentAPI
+- **Repository pattern**: Use interfaces in `Interfaces/` folder
+- **DTOs**: Separate from Domain models, use in API responses
+- **Async/Await**: Use throughout for I/O operations
+
+## Common Tasks
+
+### Adding a New Feature (Chat-related)
+
+1. Define type in `frontend/src/features/chat/types/`
+2. Create hook in `frontend/src/features/chat/hooks/` (e.g., `useXyz.ts`)
+3. Create lib function in `frontend/src/features/chat/lib/` (API call)
+4. Create component in `frontend/src/features/chat/components/`
+5. Use in page (e.g., `pages/ChatDetailPage.tsx`)
+
+### Adding an API Endpoint
+
+1. Create Entity in `Domain/Entities/`
+2. Create DTO in `Application/Dtos/`
+3. Create Service in `Application/Services/` (interface + implementation)
+4. Create Repository in `Infrastructure/Repositories/` if needed
+5. Create Controller in `MessengerWeb/Controllers/`
+6. Add migration if schema changes: `dotnet ef migrations add MigrationName`
+
+### Database Migrations
+
+```bash
+cd backend/MessengerAPI
+dotnet ef migrations add MigrationName
+dotnet ef database update
+```
+
+## Known Issues & Solutions
+
+- **Scrollbar sizing with `scaleY(-1)`**: Remove `contain: strict` from container
+- **Virtual scroll not measuring**: Ensure `ref={rowVirtualizer.measureElement}` on content wrapper
+- **Message duplication**: Check `react-query` stale time and cache settings
+- **Auth token expiry**: Implement refresh token flow before 401
+
+## Git Workflow
+
+- Branch naming: `feature/description`, `fix/description`, `chore/description`
+- Commit messages: Descriptive, lowercase (e.g., "feat: add message search")
+- No console.logs in production code
+
+## Environment Variables
+
+### Frontend (`.env`)
+
+```
+VITE_API_URL=http://localhost:5000
+```
+
+### Backend (`appsettings.json`)
+
+```json
+{
+  "ConnectionStrings": { "DefaultConnection": "..." },
+  "JwtSettings": { "SecretKey": "..." },
+  "AzureStorageSettings": { "ConnectionString": "..." },
+  "TwilioSettings": {
+    "AccountSid": "...",
+    "AuthToken": "...",
+    "PhoneNumber": "..."
+  }
+}
+```
+
+## Testing
+
+- Frontend: Vitest configured (see `vitest.config.ts`)
+- No E2E framework yet, consider Cypress/Playwright
+- Mock API responses in tests with MSW or fetch mocking
+
+## Performance Optimizations Already Applied
+
+- ✅ Virtual scrolling for chat history (TanStack Virtual)
+- ✅ Infinite queries with pagination
+- ✅ Memoized reversed messages array
+- ✅ Custom scrollbar styling to avoid layout thrashing
+- ⚠️ Consider: Image lazy loading for avatars
+- ⚠️ Consider: Message read receipts debouncing
+
+## Useful Commands
+
+```bash
+# Frontend
+npm run dev           # Start dev server (port 5173)
+npm run build         # Production build
+npm run format        # Format with Biome
+npm run lint          # Lint with Biome
+
+# Backend
+dotnet run            # Run development server (port 5000)
+dotnet build          # Build solution
+dotnet ef migrations add {name}  # Create migration
+dotnet ef database update        # Apply migrations
+docker compose up -d  # Start PostgreSQL
+```
+
+---
+
+**Last Updated**: January 18, 2026
+**AI Assistant Version**: For Claude/GitHub Copilot in Cursor IDE
