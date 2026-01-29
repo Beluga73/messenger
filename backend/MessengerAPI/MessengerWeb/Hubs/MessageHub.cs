@@ -54,12 +54,15 @@ public class MessageHub : Hub
             var senderId = GetUserId();
             var message = await _messageService.SendMessageAsync(senderId, messageDto);
             
-            // Notify the conversation group
+            // Notify the conversation group (chat window update)
+            // Было: "ReceiveMessage"
             await Clients.Group($"conversation_{message.ConversationId}")
-                .SendAsync("ReceiveMessage", message);
+                .SendAsync("conversation:message:received", message);
             
+            // Notify the specific user (global notification/toast)
+            // Было: "NewMessage"
             await Clients.Group($"user_{messageDto.RecipientId}")
-                .SendAsync("NewMessage", message);
+                .SendAsync("user:message:notification", message);
         }
         catch (Exception ex)
         {
@@ -77,7 +80,8 @@ public class MessageHub : Hub
             var userId = GetUserId();
             var messages = await _messageService.GetMessagesAsync(conversationId, userId, skip, take);
             
-            await Clients.Caller.SendAsync("MessagesLoaded", messages);
+            // Было: "MessagesLoaded"
+            await Clients.Caller.SendAsync("conversation:messages:loaded", messages);
         }
         catch (Exception ex)
         {
@@ -95,7 +99,8 @@ public class MessageHub : Hub
             var userId = GetUserId();
             var conversations = await _messageService.GetConversationsAsync(userId);
             
-            await Clients.Caller.SendAsync("ConversationsLoaded", conversations);
+            // Было: "ConversationsLoaded"
+            await Clients.Caller.SendAsync("user:conversations:loaded", conversations);
         }
         catch (Exception ex)
         {
@@ -114,8 +119,9 @@ public class MessageHub : Hub
             await _messageService.MarkAsReadAsync(conversationId, userId);
             
             // Notify all users in the conversation
+            // Было: "MessagesRead"
             await Clients.Group($"conversation_{conversationId}")
-                .SendAsync("MessagesRead", conversationId, userId);
+                .SendAsync("conversation:messages:read", conversationId, userId);
         }
         catch (Exception ex)
         {
@@ -142,8 +148,9 @@ public class MessageHub : Hub
             await Groups.AddToGroupAsync(Context.ConnectionId, $"conversation_{conversationId}");
             
             // Notify others that user joined
+            // Было: "UserJoinedConversation"
             await Clients.Group($"conversation_{conversationId}")
-                .SendAsync("UserJoinedConversation", userId, Context.ConnectionId);
+                .SendAsync("conversation:user:joined", userId, Context.ConnectionId);
         }
         catch (Exception ex)
         {
@@ -161,8 +168,9 @@ public class MessageHub : Hub
             var userId = GetUserId();
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"conversation_{conversationId}");
             
+            // Было: "UserLeftConversation"
             await Clients.Group($"conversation_{conversationId}")
-                .SendAsync("UserLeftConversation", userId, Context.ConnectionId);
+                .SendAsync("conversation:user:left", userId, Context.ConnectionId);
         }
         catch (Exception ex)
         {
@@ -170,4 +178,3 @@ public class MessageHub : Hub
         }
     }
 }
-
