@@ -2,6 +2,7 @@ import React from "react";
 
 import { Navigate, Route, BrowserRouter as Router, Routes } from "react-router-dom";
 
+import { asyncWithLDProvider } from "launchdarkly-react-client-sdk";
 import ReactDOM from "react-dom/client";
 
 import CallsPage from "@/pages/CallsPage";
@@ -62,16 +63,23 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/chats" replace />} />
       </Routes>
     </Router>
   );
 };
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <RootProviders>
-      <App />
-    </RootProviders>
-  </React.StrictMode>
-);
+(async () => {
+  const LDProvider = await asyncWithLDProvider({
+    clientSideID: import.meta.env.VITE_LAUNCH_DARKLY_CLIENT_SIDE_ID,
+  });
+  return ReactDOM.createRoot(document.getElementById("root")!).render(
+    <React.StrictMode>
+      <LDProvider>
+        <RootProviders>
+          <App />
+        </RootProviders>
+      </LDProvider>
+    </React.StrictMode>
+  );
+})();
