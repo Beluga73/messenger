@@ -20,6 +20,19 @@ export default mergeConfig(
         provider: "v8",
         reporter: ["text", "html"],
         include: ["src/**/*.{ts,tsx}"],
+        exclude: [
+          "node_modules/",
+          "tests/",
+          "src/shared/components/ui/", // shadcn components
+          "**/*.d.ts",
+          "**/index.ts", // re-exports
+        ],
+        thresholds: {
+          lines: 70,
+          functions: 70,
+          branches: 65,
+          statements: 70,
+        },
       },
     },
   })
