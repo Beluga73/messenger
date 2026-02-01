@@ -30,6 +30,50 @@ public class AuthController(PhoneVerificationService verification, UserService u
         }
     }
     
+    [HttpPost]
+    [Route("login/initiate")]
+    public async Task<IActionResult> LoginInitiate([FromBody] StartPhoneVerificationDto request)
+    {
+        try
+        {
+            var sessionInfo = await verification.SendVerificationCode(request);
+            return Ok(new { sessionInfo });
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+    
+    
+    [HttpPost]
+    [Route("login/verify")]
+    public async Task<IActionResult> LoginVerify([FromBody] CompletePhoneVerificationDto request)
+    {
+        try
+        {
+            var verificationResult = await verification.VerifyCode(request);
+            var userDto = new CreateUserDto(verificationResult.PhoneNumber);
+
+            if (!string.IsNullOrWhiteSpace(verificationResult.IdToken))
+            {
+                var user = await userService.GetUserByPhoneNumber(userDto.PhoneNumber);
+                if (user == null)
+                {
+                    return BadRequest("User not found");
+                }
+                var jwttoken = authservice.GenerateJwtToken(user);
+                var reftoken = await authservice.GenerateRefreshToken(user.PhoneNumber);
+                return Ok(new TokenDto(jwttoken, reftoken));
+            }
+            return BadRequest("Verification failed");
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+    
     /// <summary>
     /// Verifies the SMS code and creates/authenticates the user
     /// </summary>
@@ -50,8 +94,7 @@ public class AuthController(PhoneVerificationService verification, UserService u
                 var user = await userService.GetUserByPhoneNumber(userDto.PhoneNumber);
                 if (user == null)
                 {
-                    await userService.CreateUser(userDto);
-                    user = await userService.GetUserByPhoneNumber(userDto.PhoneNumber);
+                    user = await userService.CreateUser(userDto);
                 }
                 var jwttoken = authservice.GenerateJwtToken(user);
                 var reftoken = await authservice.GenerateRefreshToken(user.PhoneNumber);
