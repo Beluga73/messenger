@@ -27,6 +27,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "emoji-picker-react": "^4.16.1",
+    "launchdarkly-react-client-sdk": "^3.9.0",
     "libphonenumber-js": "^1.12.26",
     "lucide-react": "^0.545.0",
     "react": "^19.1.2",
