@@ -2,11 +2,14 @@ import { type ChangeEvent, FormEvent, useRef, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
+import { useLDClient } from "launchdarkly-react-client-sdk";
+
 import { usePhoneNumberStore } from "@/features/auth/hooks/usePhoneNumberStore";
 import { useSubmitOtp } from "@/features/auth/hooks/useSubmitOtp";
 import { Button } from "@/shared/components/ui/button";
 import { Field, FieldDescription, FieldGroup, FieldSet } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
+import { extractLDContext } from "@/shared/lib/launchDarkly";
 
 const DIGITS = 6;
 
@@ -17,6 +20,7 @@ export const OtpForm = () => {
   const inputs = useRef<Array<HTMLInputElement | null>>(new Array(DIGITS).fill(null));
   const navigate = useNavigate();
   const [error, setError] = useState<Error | null>(null);
+  const ldClient = useLDClient();
 
   const focusInput = (idx: number) => {
     inputs.current[idx]?.focus();
@@ -95,7 +99,12 @@ export const OtpForm = () => {
     }
 
     try {
-      await mutateAsync({ code, phoneNumber, sessionInfo });
+      const { jwtToken } = await mutateAsync({ code, phoneNumber, sessionInfo });
+
+      const context = extractLDContext(jwtToken);
+      if (context) {
+        ldClient?.identify(context);
+      }
       navigate("/chats");
     } catch {
       // Error is handled by the hook's toast
