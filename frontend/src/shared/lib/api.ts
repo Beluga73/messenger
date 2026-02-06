@@ -9,6 +9,7 @@ const request = async <T>(endpoint: string, config: RequestInit = {}): Promise<T
   const headers: HeadersInit = {
     "Content-Type": "application/json",
     ...(jwtToken && { Authorization: `Bearer ${jwtToken}` }),
+    ...(config.headers || {}),
   };
 
   let res = await fetch(url, { ...config, headers });
