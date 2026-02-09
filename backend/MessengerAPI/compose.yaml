@@ -1,6 +1,6 @@
 ﻿services:
   messengerweb:
-    image: ghcr.io/beluga73/messenger-api:${TAG}
+    image: ghcr.io/${REPOSITORY_OWNER}/messenger-api:${TAG}
     restart: always
     env_file: .env
     ports:
