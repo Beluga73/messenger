@@ -35,7 +35,7 @@ jobs:
           file: ./backend/MessengerAPI/MessengerWeb/Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/messenger-api:${{ github.ref_name == 'main' && 'prod' || 'staging' }}
+            ghcr.io/${{ github.repository_owner }}/messenger-api:${{ github.base_ref == 'main' && 'prod' || 'staging' }}
 
       - name: Copy compose file to VPS
         uses: appleboy/scp-action@v0.1.7
@@ -44,13 +44,13 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "./backend/MessengerAPI/compose.yaml"
-          target: ${{ github.ref_name == 'main' && '/opt/stacks/prod' || '/opt/stacks/dev' }}
+          target: ${{ github.base_ref == 'main' && '/opt/stacks/prod' || '/opt/stacks/dev' }}
           strip_components: 2 # Removes 'backend/MessengerAPI' to place compose.yaml directly in target dir
 
       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@v1.2.0
         env:
-          TARGET_DIR: ${{ github.ref_name == 'main' && '/opt/stacks/prod' || '/opt/stacks/dev' }}
+          TARGET_DIR: ${{ github.base_ref == 'main' && '/opt/stacks/prod' || '/opt/stacks/dev' }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: ${{ github.actor }}
           DB_CONN: ${{ secrets.POSTGRES_CONNECTION }}
@@ -66,8 +66,14 @@ jobs:
             mkdir -p $TARGET_DIR
             cd $TARGET_DIR
 
+            # --- DEBUG START ---
+            echo "Current Directory: $(pwd)"
+            echo "Listing files in $TARGET_DIR:"
+            ls -R
+            # --- DEBUG END ---
+
             # 1. Determine Port and Tag for the .env file
-            if [ "${{ github.ref_name }}" = "main" ]; then
+            if [ "${{ github.base_ref }}" = "main" ]; then
               echo "TAG=prod" > .env
               echo "HOST_PORT=8080" >> .env
             else
