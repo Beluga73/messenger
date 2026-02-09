@@ -43,7 +43,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "./backend/MessengerAPI/compose.yaml"
           target: ${{ github.ref_name == 'main' && '/opt/stacks/prod' || '/opt/stacks/dev' }}
-          strip_components: 2
+          strip_components: 2  # Removes 'backend/MessengerAPI' to place compose.yaml directly in target dir
 
       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@v1.2.0
