@@ -47,19 +47,19 @@ jobs:
 
       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@v1.2.0
+        env:
+          TARGET_DIR: ${{ github.ref_name == 'main' && '/opt/stacks/prod' || '/opt/stacks/dev' }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          DB_CONN: ${{ secrets.POSTGRES_CONNECTION }}
+          AZURE_CONN: ${{ secrets.AZURE_STORAGE_CONNECTION }}
+          FB_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          AUTH_KEY: ${{ secrets.AUTH_SECRET_KEY }}
         with:
           host: ${{ secrets.VPS_IP }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           envs: TARGET_DIR,GITHUB_TOKEN,GITHUB_ACTOR,DB_CONN,AZURE_CONN,FB_KEY,AUTH_KEY
-          env:
-            TARGET_DIR: ${{ github.ref_name == 'main' && '/opt/stacks/prod' || '/opt/stacks/dev' }}
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-            GITHUB_ACTOR: ${{ github.actor }}
-            DB_CONN: ${{ secrets.POSTGRES_CONNECTION }}
-            AZURE_CONN: ${{ secrets.AZURE_STORAGE_CONNECTION }}
-            FB_KEY: ${{ secrets.FIREBASE_API_KEY }}
-            AUTH_KEY: ${{ secrets.AUTH_SECRET_KEY }}
           script: |
             mkdir -p $TARGET_DIR
             cd $TARGET_DIR
