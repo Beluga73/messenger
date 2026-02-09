@@ -29,10 +29,21 @@ jobs:
       - name: Build and Push Image
         uses: docker/build-push-action@v6
         with:
-          context: ./backend/MessengerAPI/MessengerWeb
+          context: ./backend/MessengerAPI
+          file: ./backend/MessengerAPI/MessengerWeb/Dockerfile
           push: true
           tags: |
             ghcr.io/${{ github.repository_owner }}/messenger-api:${{ github.ref_name == 'main' && 'prod' || 'staging' }}
+
+      - name: Copy compose file to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_IP }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "./backend/MessengerAPI/compose.yaml"
+          target: ${{ github.ref_name == 'main' && '/opt/stacks/prod' || '/opt/stacks/dev' }}
+          strip_components: 2
 
       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@v1.2.0
