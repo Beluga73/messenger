@@ -10,7 +10,11 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCors(options => options.AddDefaultPolicy(policyBuilder => 
-    policyBuilder.WithOrigins("http://localhost:5173") // Replace with your actual frontend URL
+    policyBuilder.SetIsOriginAllowed(origin =>
+    {
+        var uri = new Uri(origin);
+        return uri.Host == "localhost" || uri.Host.EndsWith(".messenger.mbelov-blog.com") || uri.Host == "messenger.mbelov-blog.com";
+    })
         .AllowAnyMethod()
         .AllowAnyHeader()
         .AllowCredentials()));
