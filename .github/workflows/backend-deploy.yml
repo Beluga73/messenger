@@ -1,0 +1,74 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "backend/**"
+
+permissions:
+  packages: write
+  contents: read
+
+jobs:
+  build-and-deploy:
+    environment: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend/MessengerAPI/MessengerWeb
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/messenger-api:${{ github.ref_name == 'main' && 'prod' || 'staging' }}
+
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_IP }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: TARGET_DIR,GITHUB_TOKEN,GITHUB_ACTOR,DB_CONN,AZURE_CONN,FB_KEY,AUTH_KEY
+          env:
+            TARGET_DIR: ${{ github.ref_name == 'main' && '/opt/stacks/prod' || '/opt/stacks/dev' }}
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            GITHUB_ACTOR: ${{ github.actor }}
+            DB_CONN: ${{ secrets.POSTGRES_CONNECTION }}
+            AZURE_CONN: ${{ secrets.AZURE_STORAGE_CONNECTION }}
+            FB_KEY: ${{ secrets.FIREBASE_API_KEY }}
+            AUTH_KEY: ${{ secrets.AUTH_SECRET_KEY }}
+          script: |
+            mkdir -p $TARGET_DIR
+            cd $TARGET_DIR
+
+            # 1. Determine Port and Tag for the .env file
+            if [ "${{ github.ref_name }}" = "main" ]; then
+              echo "TAG=prod" > .env
+              echo "HOST_PORT=8080" >> .env
+            else
+              echo "TAG=staging" > .env
+              echo "HOST_PORT=8081" >> .env
+            fi
+
+            # 2. Add C# Secrets (Overrides your appsettings.json placeholders)
+            echo "CONNECTIONSTRINGS__POSTGRES=$DB_CONN" >> .env
+            echo "AZUREBLOBSTORAGE__CONNECTIONSTRING=$AZURE_CONN" >> .env
+            echo "FIREBASECONFIGURATION__APIKEY=$FB_KEY" >> .env
+            echo "AUTHSETTINGS__SECRETKEY=$AUTH_KEY" >> .env
+
+            # 3. Pull and Run
+            echo $GITHUB_TOKEN | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+            docker compose pull
+            docker compose up -d
