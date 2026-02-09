@@ -1,8 +1,9 @@
 name: Deploy Backend
 
 on:
-  push:
+  pull_request:
     branches: [main, develop]
+    types: [closed]
     paths:
       - "backend/**"
 
@@ -12,7 +13,8 @@ permissions:
 
 jobs:
   build-and-deploy:
-    environment: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+    if: github.event.pull_request.merged == true
+    environment: ${{ github.base_ref == 'main' && 'production' || 'staging' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -43,7 +45,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "./backend/MessengerAPI/compose.yaml"
           target: ${{ github.ref_name == 'main' && '/opt/stacks/prod' || '/opt/stacks/dev' }}
-          strip_components: 2  # Removes 'backend/MessengerAPI' to place compose.yaml directly in target dir
+          strip_components: 2 # Removes 'backend/MessengerAPI' to place compose.yaml directly in target dir
 
       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@v1.2.0
