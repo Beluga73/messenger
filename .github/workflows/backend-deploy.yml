@@ -56,6 +56,7 @@ jobs:
           TARGET_DIR: ${{ github.base_ref == 'main' && '/opt/stacks/prod' || '/opt/stacks/dev' }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: ${{ github.actor }}
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
           DB_CONN: ${{ secrets.POSTGRES_CONNECTION }}
           AZURE_CONN: ${{ secrets.AZURE_STORAGE_CONNECTION }}
           FB_KEY: ${{ secrets.FIREBASE_API_KEY }}
@@ -64,7 +65,7 @@ jobs:
           host: ${{ secrets.VPS_IP }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          envs: TARGET_DIR,GITHUB_TOKEN,GITHUB_ACTOR,DB_CONN,AZURE_CONN,FB_KEY,AUTH_KEY
+          envs: TARGET_DIR,GITHUB_TOKEN,GITHUB_ACTOR,REPOSITORY_OWNER,DB_CONN,AZURE_CONN,FB_KEY,AUTH_KEY
           script: |
             cd $TARGET_DIR
 
@@ -82,6 +83,7 @@ jobs:
             echo "AZUREBLOBSTORAGE__CONNECTIONSTRING=$AZURE_CONN" >> .env
             echo "FIREBASECONFIGURATION__APIKEY=$FB_KEY" >> .env
             echo "AUTHSETTINGS__SECRETKEY=$AUTH_KEY" >> .env
+            echo "REPOSITORY_OWNER=$REPOSITORY_OWNER" >> .env
 
             # 3. Pull and Run
             echo $GITHUB_TOKEN | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
