@@ -1,6 +1,7 @@
 name: Deploy Backend
 
 on:
+  workflow_dispatch:
   pull_request:
     branches: [main, develop]
     types: [closed]
