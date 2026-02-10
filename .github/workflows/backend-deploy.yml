@@ -14,7 +14,9 @@ permissions:
 
 jobs:
   build-and-deploy:
-    if: github.event.pull_request.merged == true
+    if: |
+      github.event.pull_request.merged == true || 
+      github.event_name == 'workflow_dispatch'
     environment: ${{ github.base_ref == 'main' && 'production' || 'staging' }}
     runs-on: ubuntu-latest
 
