@@ -48,7 +48,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "./backend/MessengerAPI/compose.yaml"
           target: ${{ github.base_ref == 'main' && '/opt/stacks/prod' || '/opt/stacks/dev' }}
-          strip_components: 2 # Removes 'backend/MessengerAPI' to place compose.yaml directly in target dir
+          strip_components: 3
 
       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@v1.2.0
@@ -66,14 +66,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           envs: TARGET_DIR,GITHUB_TOKEN,GITHUB_ACTOR,DB_CONN,AZURE_CONN,FB_KEY,AUTH_KEY
           script: |
-            mkdir -p $TARGET_DIR
             cd $TARGET_DIR
-
-            # --- DEBUG START ---
-            echo "Current Directory: $(pwd)"
-            echo "Listing files in $TARGET_DIR:"
-            ls -R
-            # --- DEBUG END ---
 
             # 1. Determine Port and Tag for the .env file
             if [ "${{ github.base_ref }}" = "main" ]; then
