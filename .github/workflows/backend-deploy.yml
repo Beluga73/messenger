@@ -47,13 +47,13 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "./backend/MessengerAPI/compose.yaml"
-          target: ${{ github.base_ref == 'main' && '/opt/stacks/prod' || '/opt/stacks/dev' }}
+          target: ${{ github.base_ref == 'main' && '/opt/stacks/prod' || '/opt/stacks/staging' }}
           strip_components: 3
 
       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@v1.2.0
         env:
-          TARGET_DIR: ${{ github.base_ref == 'main' && '/opt/stacks/prod' || '/opt/stacks/dev' }}
+          TARGET_DIR: ${{ github.base_ref == 'main' && '/opt/stacks/prod' || '/opt/stacks/staging' }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: ${{ github.actor }}
           REPOSITORY_OWNER: ${{ github.repository_owner }}
