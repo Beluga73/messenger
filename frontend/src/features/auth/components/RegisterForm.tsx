@@ -70,17 +70,20 @@ export const RegisterForm = () => {
         setError(new Error("reCAPTCHA not loaded. Try reloading the page"));
         return;
       }
+      console.log("PROCESS CAPTCHA");
       const token = await recaptcha.executeAsync();
       if (!token) {
         setError(new Error("Failed to get reCAPTCHA token."));
         return;
       }
+      console.log("FINISHED CAPTCHA");
       const phoneNumber = phoneNumberObject.number;
 
       const response = await mutateAsync({
         phoneNumber,
         recaptchaToken: token,
       });
+      console.log("MAKE REQUEST");
       setVerificationData(phoneNumber, response.sessionInfo);
       setStep("verify");
       recaptcha.reset();
