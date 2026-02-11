@@ -21,7 +21,7 @@ export const getContextAttributes = () => {
 
 export const extractLDContext = (token: string) => {
   const decoded = decodeJWT(token);
-  if (!decoded) return null;
+  if (!decoded) return undefined;
 
   return {
     kind: "user",
