@@ -1,4 +1,5 @@
 import { X } from "lucide-react";
+
 import { Button } from "@/shared/components/ui/button";
 
 interface ChatHeaderOptionsMenuProps {
@@ -6,19 +7,12 @@ interface ChatHeaderOptionsMenuProps {
   onClose: () => void;
 }
 
-export function ChatHeaderOptionsMenu({
-  isOpen,
-  onClose,
-}: ChatHeaderOptionsMenuProps) {
+export function ChatHeaderOptionsMenu({ isOpen, onClose }: ChatHeaderOptionsMenuProps) {
   return (
     <>
       {/* Backdrop */}
       {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40"
-          onClick={onClose}
-          aria-hidden="true"
-        />
+        <div className="fixed inset-0 bg-black/50 z-40" onClick={onClose} aria-hidden="true" />
       )}
 
       {/* Slide-out panel from right */}
@@ -30,12 +24,7 @@ export function ChatHeaderOptionsMenu({
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-border">
           <h2 className="text-lg font-semibold">Options</h2>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onClose}
-            className="shrink-0"
-          >
+          <Button variant="ghost" size="icon" onClick={onClose} className="shrink-0">
             <X className="h-5 w-5" />
           </Button>
         </div>

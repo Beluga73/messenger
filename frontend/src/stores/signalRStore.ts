@@ -1,5 +1,6 @@
-import { create } from "zustand";
 import { HubConnection, HubConnectionBuilder, LogLevel } from "@microsoft/signalr";
+import { create } from "zustand";
+
 import { useTokenStore } from "./tokenStore";
 
 interface SignalRStore {

@@ -1,11 +1,7 @@
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/shared/components/ui/avatar";
-import { Badge } from "@/shared/components/ui/badge";
 import { formatChatTime } from "@/features/chat/lib/formatters";
 import { Conversation } from "@/features/chat/types";
+import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
+import { Badge } from "@/shared/components/ui/badge";
 
 interface ChatItemProps {
   chat: Conversation;
@@ -35,14 +31,10 @@ export function ChatItem({ chat, handleClick, selected = false }: ChatItemProps)
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-center">
           <h3 className="font-medium truncate">{chat.userName}</h3>
-          <span className="text-xs text-muted-foreground">
-            {formatChatTime(lastMessageDate)}
-          </span>
+          <span className="text-xs text-muted-foreground">{formatChatTime(lastMessageDate)}</span>
         </div>
         <div className="flex justify-between items-center mt-1">
-          <p className="text-sm text-muted-foreground truncate">
-            {truncatedMessage}
-          </p>
+          <p className="text-sm text-muted-foreground truncate">{truncatedMessage}</p>
           {chat.unreadCount > 0 && (
             <Badge
               variant="default"

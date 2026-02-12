@@ -1,5 +1,5 @@
+import { OtpForm, RegisterForm } from "@/features/auth/components";
 import { useRegisterStepStore } from "@/features/auth/hooks";
-import { RegisterForm, OtpForm } from "@/features/auth/components";
 
 export default function RegisterPage() {
   const { step } = useRegisterStepStore();
