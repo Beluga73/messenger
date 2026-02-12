@@ -54,13 +54,3 @@ jobs:
       - name: Cleanup
         if: always()
         run: docker compose -f backend/MessengerAPI/compose.test.yaml down
-          curl -f http://localhost:8080/health || echo "Health check endpoint may not exist"
-        continue-on-error: true
-
-      - name: View logs
-        if: failure()
-        run: docker compose -f backend/MessengerAPI/compose.yaml logs
-
-      - name: Cleanup
-        if: always()
-        run: docker compose -f backend/MessengerAPI/compose.yaml down
