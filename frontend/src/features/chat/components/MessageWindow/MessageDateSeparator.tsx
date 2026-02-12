@@ -31,9 +31,7 @@ export function MessageDateSeparator({ date }: MessageDateSeparatorProps) {
   return (
     <div className="flex items-center gap-3 my-6">
       <Separator className="flex-1" />
-      <span className="text-xs text-muted-foreground font-medium">
-        {formatDate(date)}
-      </span>
+      <span className="text-xs text-muted-foreground font-medium">{formatDate(date)}</span>
       <Separator className="flex-1" />
     </div>
   );

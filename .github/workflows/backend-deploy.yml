@@ -78,7 +78,13 @@ jobs:
               echo "HOST_PORT=8081" >> .env
             fi
 
-            # 2. Add C# Secrets (Overrides your appsettings.json placeholders)
+            # 2. Extract DB password from connection string for postgres service
+            # Extract password from "Password=xxx" in connection string
+            DB_PASSWORD=$(echo "$DB_CONN" | grep -oP 'Password=\K[^;]+' || echo "admin")
+            echo "POSTGRES_PASSWORD=$DB_PASSWORD" >> .env
+            echo "POSTGRES_USER=admin" >> .env
+
+            # 3. Add C# Secrets (Overrides your appsettings.json placeholders)
             echo "CONNECTIONSTRINGS__POSTGRES=$DB_CONN" >> .env
             echo "AZUREBLOBSTORAGE__CONNECTIONSTRING=$AZURE_CONN" >> .env
             echo "FIREBASECONFIGURATION__APIKEY=$FB_KEY" >> .env
