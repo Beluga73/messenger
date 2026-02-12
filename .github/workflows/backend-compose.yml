@@ -32,18 +32,23 @@ jobs:
           cd backend/MessengerAPI
           docker build -f MessengerWeb/Dockerfile -t messenger-api:test .
 
+      - name: Create docker-compose.override.yml for testing
+        run: |
+          cd backend/MessengerAPI
+          cat > docker-compose.override.yml << 'EOF'
+          services:
+            messengerweb:
+              image: messenger-api:test
+          EOF
+
       - name: Create .env file for testing
         run: |
           cd backend/MessengerAPI
-          echo "REPOSITORY_OWNER=test" > .env
-          echo "TAG=test" >> .env
-          echo "HOST_PORT=8080" >> .env
+          echo "HOST_PORT=8080" > .env
 
       - name: Start Docker Compose
         run: |
           cd backend/MessengerAPI
-          # Temporarily modify compose.yaml to use local image
-          sed -i 's|image: ghcr.io/${REPOSITORY_OWNER}/messenger-api:${TAG}|image: messenger-api:test|' compose.yaml
           docker compose up -d
 
       - name: Wait for services to be healthy
