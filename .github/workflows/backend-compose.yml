@@ -32,32 +32,28 @@ jobs:
           cd backend/MessengerAPI
           docker build -f MessengerWeb/Dockerfile -t messenger-api:test .
 
-      - name: Create docker-compose.override.yml for testing
-        run: |
-          cd backend/MessengerAPI
-          cat > docker-compose.override.yml << 'EOF'
-          services:
-            messengerweb:
-              image: messenger-api:test
-          EOF
-
-      - name: Create .env file for testing
-        run: |
-          cd backend/MessengerAPI
-          echo "HOST_PORT=8080" > .env
-
       - name: Start Docker Compose
         run: |
           cd backend/MessengerAPI
-          docker compose up -d
+          docker compose -f compose.test.yaml up -d
 
       - name: Wait for services to be healthy
         run: |
-          timeout 30 bash -c 'until docker compose -f backend/MessengerAPI/compose.yaml exec -T postgresdb pg_isready -U admin -d MessengerDb; do sleep 1; done'
+          timeout 30 bash -c 'until docker compose -f backend/MessengerAPI/compose.test.yaml exec -T postgresdb pg_isready -U admin -d MessengerDb; do sleep 1; done'
 
       - name: Check API health
         run: |
           sleep 5
+          curl -f http://localhost:8080/health || echo "Health check endpoint may not exist"
+        continue-on-error: true
+
+      - name: View logs
+        if: failure()
+        run: docker compose -f backend/MessengerAPI/compose.test.yaml logs
+
+      - name: Cleanup
+        if: always()
+        run: docker compose -f backend/MessengerAPI/compose.test.yaml down
           curl -f http://localhost:8080/health || echo "Health check endpoint may not exist"
         continue-on-error: true
 
