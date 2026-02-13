@@ -6,6 +6,7 @@ import { requestQueue } from "../requestQueue";
 export interface InterceptorRequest {
   url: string;
   method: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body?: any;
   headers: HeadersInit;
 }

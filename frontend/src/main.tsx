@@ -18,6 +18,7 @@ import { RootProviders } from "@/stores/providers";
 
 import "./index.css";
 
+// eslint-disable-next-line react-refresh/only-export-components
 const App = () => {
   return (
     <Router>

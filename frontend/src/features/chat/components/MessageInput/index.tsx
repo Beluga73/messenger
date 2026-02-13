@@ -2,7 +2,7 @@ import { FC, memo, useCallback, useRef, useState } from "react";
 
 import { useParams } from "react-router-dom";
 
-import EmojiPicker from "emoji-picker-react";
+import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
 import { Paperclip, Send, Smile } from "lucide-react";
 
 import { useConversation } from "@/features/chat/hooks/useConversation";
@@ -62,7 +62,7 @@ export const MessageInput: FC = memo(() => {
     target.style.height = `${newHeight}px`;
   };
 
-  const handleEmojiClick = (emojiData: any) => {
+  const handleEmojiClick = (emojiData: EmojiClickData) => {
     setMessage((prev) => prev + emojiData.emoji);
     // TODO: From UI/UX standpoint, do we need this?
     setTimeout(() => {
