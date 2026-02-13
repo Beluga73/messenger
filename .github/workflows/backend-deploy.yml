@@ -7,6 +7,7 @@ on:
     types: [closed]
     paths:
       - "backend/**"
+      - ".github/workflows/backend-deploy.yml"
 
 permissions:
   packages: write
@@ -67,6 +68,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           envs: TARGET_DIR,GITHUB_TOKEN,GITHUB_ACTOR,REPOSITORY_OWNER,DB_CONN,AZURE_CONN,FB_KEY,AUTH_KEY
           script: |
+            mkdir -p $TARGET_DIR  
             cd $TARGET_DIR
 
             # 1. Determine Port and Tag for the .env file
