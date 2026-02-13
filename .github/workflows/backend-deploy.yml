@@ -18,7 +18,7 @@ jobs:
     if: |
       github.event.pull_request.merged == true || 
       github.event_name == 'workflow_dispatch'
-    environment: ${{ github.base_ref == 'main' && 'production' || 'staging' }}
+    environment: ${{ ((github.event_name == 'pull_request' && github.base_ref) || github.ref_name) == 'main' && 'production' || 'staging' }}
     runs-on: ubuntu-latest
 
     steps:
@@ -39,7 +39,7 @@ jobs:
           file: ./backend/MessengerAPI/MessengerWeb/Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/messenger-api:${{ github.base_ref == 'main' && 'prod' || 'staging' }}
+            ghcr.io/${{ github.repository_owner }}/messenger-api:${{ ((github.event_name == 'pull_request' && github.base_ref) || github.ref_name) == 'main' && 'prod' || 'staging' }}
 
       - name: Copy compose file to VPS
         uses: appleboy/scp-action@v0.1.7
@@ -48,13 +48,13 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "./backend/MessengerAPI/compose.yaml"
-          target: ${{ github.base_ref == 'main' && '/opt/stacks/prod' || '/opt/stacks/staging' }}
+          target: ${{ ((github.event_name == 'pull_request' && github.base_ref) || github.ref_name) == 'main' && '/opt/stacks/prod' || '/opt/stacks/staging' }}
           strip_components: 3
 
       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@v1.2.0
         env:
-          TARGET_DIR: ${{ github.base_ref == 'main' && '/opt/stacks/prod' || '/opt/stacks/staging' }}
+          TARGET_DIR: ${{ ((github.event_name == 'pull_request' && github.base_ref) || github.ref_name) == 'main' && '/opt/stacks/prod' || '/opt/stacks/staging' }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: ${{ github.actor }}
           REPOSITORY_OWNER: ${{ github.repository_owner }}
@@ -72,7 +72,7 @@ jobs:
             cd $TARGET_DIR
 
             # 1. Determine Port and Tag for the .env file
-            if [ "${{ github.base_ref }}" = "main" ]; then
+            if [ "${{ (github.event_name == 'pull_request' && github.base_ref) || github.ref_name }}" = "main" ]; then
               echo "TAG=prod" > .env
               echo "HOST_PORT=8080" >> .env
             else
