@@ -20,7 +20,6 @@ export interface Message {
 }
 
 // TODO: move that directly in ChatWindow file?
-// Random comment to check if cloudflare preview for develop will work
 export interface ChatHeaderData {
   id: string;
   image: string;
