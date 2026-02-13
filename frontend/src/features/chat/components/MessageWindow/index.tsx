@@ -89,15 +89,13 @@ export function MessageWindow() {
     }
   }, [isConnected, conversationId, queryClient, invoke, on, off]);
 
-  // Extract and flatten messages from paginated data
-  const messages = data ? flattenMessages(data.pages) : [];
-
   // Ensure messages are consistently ordered by date descending (newest at index 0)
   const reversedMessages = useMemo(() => {
+    const messages = data ? flattenMessages(data.pages) : [];
     return [...messages].sort(
       (a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime()
     );
-  }, [messages]);
+  }, [data]);
 
   const rowVirtualizer = useVirtualizer({
     count: reversedMessages.length,

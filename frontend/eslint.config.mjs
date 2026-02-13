@@ -20,6 +20,7 @@ export default defineConfig([
       "vitest.shims.d.ts",
       "tailwind.config.js",
       "src/shared/components/ui/**",
+      "tests/**",
       "coverage/**",
     ],
   },
