@@ -76,19 +76,20 @@ export const RegisterForm = () => {
         setError(new Error("Failed to get reCAPTCHA token."));
         return;
       }
-      console.log("FINISHED CAPTCHA");
+      console.log("FINISHED CAPTCHA", { token });
       const phoneNumber = phoneNumberObject.number;
 
       const response = await mutateAsync({
         phoneNumber,
         recaptchaToken: token,
       });
-      console.log("MAKE REQUEST");
+      console.log("MAKE REQUEST", { response });
       setVerificationData(phoneNumber, response.sessionInfo);
       setStep("verify");
       recaptcha.reset();
-    } catch {
-      // Error is handled by the hook's toast
+    } catch (error) {
+      console.error("Registration error:", error);
+      setError(error instanceof Error ? error : new Error("An unknown error occurred."));
     }
   };
 
