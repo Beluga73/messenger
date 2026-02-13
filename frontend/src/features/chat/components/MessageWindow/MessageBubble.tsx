@@ -1,5 +1,7 @@
 import { FC, memo } from "react";
+
 import { Check } from "lucide-react";
+
 import { Message } from "@/features/chat/types";
 
 interface MessageBubbleProps {
@@ -18,11 +20,7 @@ export const MessageBubble: FC<MessageBubbleProps> = memo(
     };
 
     return (
-      <div
-        className={`flex ${
-          isCurrentUserMessage ? "justify-end" : "justify-start"
-        }`}
-      >
+      <div className={`flex ${isCurrentUserMessage ? "justify-end" : "justify-start"}`}>
         <div
           className={`max-w-xs lg:max-w-md xl:max-w-lg px-4 py-2 rounded-2xl relative ${
             isCurrentUserMessage
@@ -32,9 +30,7 @@ export const MessageBubble: FC<MessageBubbleProps> = memo(
         >
           <p className="break-words">{message.content}</p>
           <div className="flex items-center justify-end gap-1 mt-1">
-            <span className="text-xs opacity-70">
-              {formatTime(message.sentAt)}
-            </span>
+            <span className="text-xs opacity-70">{formatTime(message.sentAt)}</span>
             {isCurrentUserMessage && (
               <div className="flex -space-x-1">
                 <Check className="h-3 w-3" />
@@ -45,7 +41,7 @@ export const MessageBubble: FC<MessageBubbleProps> = memo(
         </div>
       </div>
     );
-  },
+  }
 );
 
 MessageBubble.displayName = "MessageBubble";

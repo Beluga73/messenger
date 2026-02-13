@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from "react";
 
 export const FunnyGuys = () => {
@@ -8,9 +7,7 @@ export const FunnyGuys = () => {
     if (!groupRef.current) throw new Error("Group for guys didn't render");
 
     const trackEyes = (event: MouseEvent) => {
-      const pupils = groupRef.current!.querySelectorAll(
-        ".pupil"
-      ) as NodeListOf<HTMLDivElement>;
+      const pupils = groupRef.current!.querySelectorAll(".pupil") as NodeListOf<HTMLDivElement>;
 
       if (pupils.length === 0) throw new Error("Cannot select pupils");
 
