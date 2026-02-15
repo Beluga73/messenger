@@ -9,7 +9,7 @@ namespace MessengerWeb.Controllers;
 [Authorize]
 [ApiController]
 [Route("api/conversations")]
-public class ConversationController(IMessageService messageService) : ControllerBase
+public class ConversationController(IMessageService messageService, IGroupService groupService) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> GetConversations()
@@ -34,6 +34,19 @@ public class ConversationController(IMessageService messageService) : Controller
         {
             var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
                                     ?? throw new Exception("User not authenticated"));
+
+            if (conversationDto.IsGroup)
+            {
+                // Delegate to group service
+                var createGroupDto = new CreateGroupDto
+                {
+                    Name = conversationDto.Name,
+                    MemberIds = conversationDto.ParticipantIds
+                };
+                var group = await groupService.CreateGroupAsync(userId, createGroupDto);
+                return Ok(group);
+            }
+
             var conversation = await messageService.CreateConversationAsync(userId, conversationDto);
             return Ok(conversation);
         }

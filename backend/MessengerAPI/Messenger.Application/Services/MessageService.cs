@@ -105,8 +105,8 @@ public class MessageService : IMessageService
 
     public async Task<ConversationDto> CreateConversationAsync(Guid creatorId, CreateConversationDto conversationDto)
     {
-        if (conversationDto.ParticipantIds.Count != 2 || conversationDto.IsGroup)
-            throw new Exception("Only 1-on-1 conversations are currently supported");
+        if (conversationDto.ParticipantIds.Count != 2)
+            throw new Exception("1-on-1 conversations require exactly 2 participants");
 
         if (!conversationDto.ParticipantIds.Contains(creatorId))
             throw new Exception("Creator must be a participant");

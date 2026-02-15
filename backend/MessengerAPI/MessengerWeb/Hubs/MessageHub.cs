@@ -10,10 +10,12 @@ namespace MessengerWeb.Hubs;
 public class MessageHub : Hub
 {
     private readonly IMessageService _messageService;
+    private readonly IGroupService _groupService;
 
-    public MessageHub(IMessageService messageService)
+    public MessageHub(IMessageService messageService, IGroupService groupService)
     {
         _messageService = messageService;
+        _groupService = groupService;
     }
 
     private Guid GetUserId()
@@ -44,6 +46,8 @@ public class MessageHub : Hub
         await base.OnDisconnectedAsync(exception);
     }
 
+    // ==================== Direct Messages ====================
+
     /// <summary>
     /// Send a message to a recipient
     /// </summary>
@@ -54,13 +58,9 @@ public class MessageHub : Hub
             var senderId = GetUserId();
             var message = await _messageService.SendMessageAsync(senderId, messageDto);
             
-            // Notify the conversation group (chat window update)
-            // Было: "ReceiveMessage"
             await Clients.Group($"conversation_{message.ConversationId}")
                 .SendAsync("conversation:message:received", message);
             
-            // Notify the specific user (global notification/toast)
-            // Было: "NewMessage"
             await Clients.Group($"user_{messageDto.RecipientId}")
                 .SendAsync("user:message:notification", message);
         }
@@ -80,7 +80,6 @@ public class MessageHub : Hub
             var userId = GetUserId();
             var messages = await _messageService.GetMessagesAsync(conversationId, userId, skip, take);
             
-            // Было: "MessagesLoaded"
             await Clients.Caller.SendAsync("conversation:messages:loaded", messages);
         }
         catch (Exception ex)
@@ -99,7 +98,6 @@ public class MessageHub : Hub
             var userId = GetUserId();
             var conversations = await _messageService.GetConversationsAsync(userId);
             
-            // Было: "ConversationsLoaded"
             await Clients.Caller.SendAsync("user:conversations:loaded", conversations);
         }
         catch (Exception ex)
@@ -118,8 +116,6 @@ public class MessageHub : Hub
             var userId = GetUserId();
             await _messageService.MarkAsReadAsync(conversationId, userId);
             
-            // Notify all users in the conversation
-            // Было: "MessagesRead"
             await Clients.Group($"conversation_{conversationId}")
                 .SendAsync("conversation:messages:read", conversationId, userId);
         }
@@ -138,7 +134,6 @@ public class MessageHub : Hub
         {
             var userId = GetUserId();
             
-            // Verify user has access to this conversation
             var conversations = await _messageService.GetConversationsAsync(userId);
             if (!conversations.Any(c => c.Id == conversationId))
             {
@@ -147,8 +142,6 @@ public class MessageHub : Hub
             
             await Groups.AddToGroupAsync(Context.ConnectionId, $"conversation_{conversationId}");
             
-            // Notify others that user joined
-            // Было: "UserJoinedConversation"
             await Clients.Group($"conversation_{conversationId}")
                 .SendAsync("conversation:user:joined", userId, Context.ConnectionId);
         }
@@ -168,13 +161,123 @@ public class MessageHub : Hub
             var userId = GetUserId();
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"conversation_{conversationId}");
             
-            // Было: "UserLeftConversation"
             await Clients.Group($"conversation_{conversationId}")
                 .SendAsync("conversation:user:left", userId, Context.ConnectionId);
         }
         catch (Exception ex)
         {
             throw new HubException($"Failed to leave conversation: {ex.Message}");
+        }
+    }
+
+    // ==================== Group Messages ====================
+
+    /// <summary>
+    /// Send a message to a group
+    /// </summary>
+    public async Task SendGroupMessage(SendGroupMessageDto messageDto)
+    {
+        try
+        {
+            var senderId = GetUserId();
+            var message = await _groupService.SendMessageAsync(senderId, messageDto);
+            
+            // Notify all members in the group SignalR group
+            await Clients.Group($"group_{messageDto.GroupId}")
+                .SendAsync("group:message:received", message);
+            
+            // Notify individual members who may not be in the group SignalR group
+            var group = await _groupService.GetGroupAsync(messageDto.GroupId, senderId);
+            foreach (var member in group.Members)
+            {
+                if (member.UserId != senderId)
+                {
+                    await Clients.Group($"user_{member.UserId}")
+                        .SendAsync("user:group:message:notification", message, group.Name);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new HubException($"Failed to send group message: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Load messages for a group
+    /// </summary>
+    public async Task LoadGroupMessages(Guid groupId, int skip = 0, int take = 50)
+    {
+        try
+        {
+            var userId = GetUserId();
+            var messages = await _groupService.GetMessagesAsync(groupId, userId, skip, take);
+            
+            await Clients.Caller.SendAsync("group:messages:loaded", messages);
+        }
+        catch (Exception ex)
+        {
+            throw new HubException($"Failed to load group messages: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Load all groups for the current user
+    /// </summary>
+    public async Task LoadGroups()
+    {
+        try
+        {
+            var userId = GetUserId();
+            var groups = await _groupService.GetUserGroupsAsync(userId);
+            
+            await Clients.Caller.SendAsync("user:groups:loaded", groups);
+        }
+        catch (Exception ex)
+        {
+            throw new HubException($"Failed to load groups: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Join a group SignalR group for real-time updates
+    /// </summary>
+    public async Task JoinGroup(Guid groupId)
+    {
+        try
+        {
+            var userId = GetUserId();
+            
+            // Verify membership
+            await _groupService.GetGroupAsync(groupId, userId);
+            
+            await Groups.AddToGroupAsync(Context.ConnectionId, $"group_{groupId}");
+            
+            await Clients.Group($"group_{groupId}")
+                .SendAsync("group:user:joined", userId, Context.ConnectionId);
+        }
+        catch (Exception ex)
+        {
+            throw new HubException($"Failed to join group: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Leave a group SignalR group
+    /// </summary>
+    public async Task LeaveGroupHub(Guid groupId)
+    {
+        try
+        {
+            var userId = GetUserId();
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"group_{groupId}");
+            
+            await Clients.Group($"group_{groupId}")
+                .SendAsync("group:user:left", userId, Context.ConnectionId);
+        }
+        catch (Exception ex)
+        {
+            throw new HubException($"Failed to leave group: {ex.Message}");
         }
     }
 }

@@ -12,6 +12,9 @@ public class MessengerDbContext(DbContextOptions<MessengerDbContext> options ) :
     public DbSet<RefreshToken> RefreshTokens { get; set; }
     public DbSet<Conversation> Conversations { get; set; }
     public DbSet<Message> Messages { get; set; }
+    public DbSet<Group> Groups { get; set; }
+    public DbSet<GroupMember> GroupMembers { get; set; }
+    public DbSet<GroupMessage> GroupMessages { get; set; }
     
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -22,5 +25,8 @@ public class MessengerDbContext(DbContextOptions<MessengerDbContext> options ) :
         modelBuilder.ApplyConfiguration(new RefreshTokenConfiguration());
         modelBuilder.ApplyConfiguration(new ConversationConfiguration());
         modelBuilder.ApplyConfiguration(new MessageConfiguration());
+        modelBuilder.ApplyConfiguration(new GroupConfiguration());
+        modelBuilder.ApplyConfiguration(new GroupMemberConfiguration());
+        modelBuilder.ApplyConfiguration(new GroupMessageConfiguration());
     }
 }
