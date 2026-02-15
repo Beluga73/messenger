@@ -67,8 +67,6 @@ export const MessageInput: FC = memo(() => {
 
   return (
     <div className="chat-footer items-end pb-4 gap-2">
-      <EmojiPicker onEmojiClick={handleEmojiClick} />
-
       <Button variant="ghost" size="icon" className="shrink-0">
         <Paperclip className="h-5 w-5" />
       </Button>
@@ -82,6 +80,8 @@ export const MessageInput: FC = memo(() => {
         className="min-h-10 resize-none z-10 max-h-84 overflow-y-auto"
         rows={1}
       />
+
+      <EmojiPicker onEmojiClick={handleEmojiClick} />
 
       <Button
         onClick={handleSendMessage}
