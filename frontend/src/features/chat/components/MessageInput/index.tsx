@@ -44,10 +44,6 @@ export const MessageInput: FC = memo(() => {
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const target = e.target;
     setMessage(target.value);
-
-    target.style.height = "auto";
-    const newHeight = Math.min(target.scrollHeight, 120);
-    target.style.height = `${newHeight}px`;
   };
 
   const handleEmojiClick = (emoji: string) => {
@@ -83,7 +79,7 @@ export const MessageInput: FC = memo(() => {
         value={message}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
-        className="min-h-10 resize-none z-10"
+        className="min-h-10 resize-none z-10 max-h-84 overflow-y-auto"
         rows={1}
       />
 
