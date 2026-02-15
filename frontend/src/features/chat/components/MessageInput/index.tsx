@@ -1,21 +1,16 @@
-import { FC, memo, useCallback, useRef, useState } from "react";
+import { FC, memo, useCallback, useLayoutEffect, useRef, useState } from "react";
 
 import { useParams } from "react-router-dom";
 
-import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
-import { Paperclip, Send, Smile } from "lucide-react";
+import { Paperclip, Send } from "lucide-react";
 
 import { useConversation } from "@/features/chat/hooks/useConversation";
 import { Button } from "@/shared/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/shared/components/ui/popover";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { useSignalRStore } from "@/stores/signalRStore";
 
-/**
- * MessageInput smart component
- *
- * Handles message input and sending via SignalR
- */
+import { EmojiPicker } from "./EmojiPicker";
+
 export const MessageInput: FC = memo(() => {
   const { id: conversationId } = useParams<{ id: string }>();
   const { data: conversation } = useConversation(conversationId);
@@ -23,7 +18,7 @@ export const MessageInput: FC = memo(() => {
 
   const [message, setMessage] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [openEmoji, setOpenEmoji] = useState(false);
+  const [cursor, setCursor] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSendMessage = useCallback(async () => {
@@ -35,9 +30,6 @@ export const MessageInput: FC = memo(() => {
           recipientId: conversation.userId,
         });
         setMessage("");
-        if (textareaRef.current) {
-          textareaRef.current.style.height = "auto";
-        }
       } catch (error) {
         console.error("Failed to send message", error);
       } finally {
@@ -62,33 +54,28 @@ export const MessageInput: FC = memo(() => {
     target.style.height = `${newHeight}px`;
   };
 
-  const handleEmojiClick = (emojiData: EmojiClickData) => {
-    setMessage((prev) => prev + emojiData.emoji);
-    // TODO: From UI/UX standpoint, do we need this?
-    setTimeout(() => {
-      if (textareaRef.current) {
-        textareaRef.current.focus();
-      }
-    }, 0);
+  const handleEmojiClick = (emoji: string) => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const pos = textarea.selectionStart;
+    const newMessage = message.substring(0, pos) + emoji + message.substring(pos);
+
+    setMessage(newMessage);
+    setCursor(pos + emoji.length);
   };
+
+  useLayoutEffect(() => {
+    if (textareaRef.current && cursor !== null) {
+      textareaRef.current.focus();
+      textareaRef.current.setSelectionRange(cursor, cursor);
+      setCursor(null); // Reset so it doesn't trigger on every keystroke
+    }
+  }, [message, cursor]);
 
   return (
     <div className="chat-footer items-end pb-4 gap-2">
-      <Popover open={openEmoji} onOpenChange={setOpenEmoji} modal={false}>
-        <PopoverTrigger asChild>
-          <Button variant="ghost" size="icon" className="shrink-0" disabled={isLoading}>
-            <Smile className="h-5 w-5" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent
-          side="top"
-          align="start"
-          className="w-fit p-0 border-none shadow-lg"
-          onFocusOutside={(e) => e.preventDefault()}
-        >
-          <EmojiPicker onEmojiClick={handleEmojiClick} width={350} height={400} />
-        </PopoverContent>
-      </Popover>
+      <EmojiPicker onEmojiClick={handleEmojiClick} isLoading={isLoading} />
 
       <Button variant="ghost" size="icon" className="shrink-0" disabled={isLoading}>
         <Paperclip className="h-5 w-5" />
@@ -101,7 +88,7 @@ export const MessageInput: FC = memo(() => {
         onChange={handleChange}
         onKeyDown={handleKeyDown}
         disabled={isLoading}
-        className="min-h-10 max-h-32 resize-none"
+        className="min-h-10 resize-none z-10"
         rows={1}
       />
 
