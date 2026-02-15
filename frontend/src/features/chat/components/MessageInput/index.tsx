@@ -77,7 +77,7 @@ export const MessageInput: FC = memo(() => {
         value={message}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
-        className="min-h-10 resize-none z-10 max-h-84 overflow-y-auto"
+        className="min-h-10 max-h-64 lg:max-h-84 resize-none overflow-y-auto z-10"
         rows={1}
       />
 
