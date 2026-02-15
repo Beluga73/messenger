@@ -1,4 +1,4 @@
-import { FC, memo, useCallback, useLayoutEffect, useRef, useState } from "react";
+import { FC, memo, useLayoutEffect, useRef, useState } from "react";
 
 import { useParams } from "react-router-dom";
 
@@ -19,11 +19,9 @@ export const MessageInput: FC = memo(() => {
   const [message, setMessage] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [cursor, setCursor] = useState<number | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSendMessage = useCallback(async () => {
+  const handleSendMessage = async () => {
     if (message.trim() && conversation?.userId && isConnected) {
-      setIsLoading(true);
       try {
         await invoke("SendMessage", {
           content: message.trim(),
@@ -32,11 +30,9 @@ export const MessageInput: FC = memo(() => {
         setMessage("");
       } catch (error) {
         console.error("Failed to send message", error);
-      } finally {
-        setIsLoading(false);
       }
     }
-  }, [message, conversation?.userId, isConnected, invoke]);
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -75,9 +71,9 @@ export const MessageInput: FC = memo(() => {
 
   return (
     <div className="chat-footer items-end pb-4 gap-2">
-      <EmojiPicker onEmojiClick={handleEmojiClick} isLoading={isLoading} />
+      <EmojiPicker onEmojiClick={handleEmojiClick} />
 
-      <Button variant="ghost" size="icon" className="shrink-0" disabled={isLoading}>
+      <Button variant="ghost" size="icon" className="shrink-0">
         <Paperclip className="h-5 w-5" />
       </Button>
 
@@ -87,14 +83,13 @@ export const MessageInput: FC = memo(() => {
         value={message}
         onChange={handleChange}
         onKeyDown={handleKeyDown}
-        disabled={isLoading}
         className="min-h-10 resize-none z-10"
         rows={1}
       />
 
       <Button
         onClick={handleSendMessage}
-        disabled={!message.trim() || isLoading}
+        disabled={!message.trim()}
         size="icon"
         className="shrink-0"
       >

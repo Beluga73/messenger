@@ -11,13 +11,12 @@ import { useThemeStore } from "@/stores/themeStore";
 
 interface EmojiPickerProps {
   onEmojiClick: (unicode: string) => void;
-  isLoading?: boolean;
 }
 
 const OPEN_DELAY = 300;
 const CLOSE_DELAY = 300;
 
-export const EmojiPicker: FC<EmojiPickerProps> = ({ onEmojiClick, isLoading }) => {
+export const EmojiPicker: FC<EmojiPickerProps> = ({ onEmojiClick }) => {
   const [open, setOpen] = useState(false);
   const openTimeoutRef = useRef<number | null>(null);
   const closeTimeoutRef = useRef<number | null>(null);
@@ -74,7 +73,7 @@ export const EmojiPicker: FC<EmojiPickerProps> = ({ onEmojiClick, isLoading }) =
     <Popover open={open} onOpenChange={setOpen}>
       <div onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
         <PopoverTrigger asChild>
-          <Button variant="ghost" size="icon" className="shrink-0" disabled={isLoading}>
+          <Button variant="ghost" size="icon" className="shrink-0">
             <Smile className="h-5 w-5" />
           </Button>
         </PopoverTrigger>
