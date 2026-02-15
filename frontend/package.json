@@ -13,7 +13,8 @@
     "format:check": "prettier . --check",
     "test": "vitest",
     "test:ui": "vitest --ui --coverage",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "analyze": "ANALYZE=true vite build"
   },
   "dependencies": {
     "@microsoft/signalr": "^10.0.0",
@@ -29,7 +30,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
-    "emoji-picker-react": "^4.16.1",
+    "emoji-picker-element": "^1.29.0",
     "launchdarkly-react-client-sdk": "^3.9.0",
     "libphonenumber-js": "^1.12.26",
     "lucide-react": "^0.545.0",
