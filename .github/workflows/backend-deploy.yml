@@ -1,0 +1,99 @@
+name: Deploy Backend
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main, develop]
+    types: [closed]
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-deploy.yml"
+
+permissions:
+  packages: write
+  contents: read
+
+jobs:
+  build-and-deploy:
+    if: |
+      github.event.pull_request.merged == true || 
+      github.event_name == 'workflow_dispatch'
+    environment: ${{ ((github.event_name == 'pull_request' && github.base_ref) || github.ref_name) == 'main' && 'production' || 'staging' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend/MessengerAPI
+          file: ./backend/MessengerAPI/MessengerWeb/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/messenger-api:${{ ((github.event_name == 'pull_request' && github.base_ref) || github.ref_name) == 'main' && 'prod' || 'staging' }}
+
+      - name: Copy compose file to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_IP }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "./backend/MessengerAPI/compose.yaml"
+          target: ${{ ((github.event_name == 'pull_request' && github.base_ref) || github.ref_name) == 'main' && '/opt/stacks/prod' || '/opt/stacks/staging' }}
+          strip_components: 3
+
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          TARGET_DIR: ${{ ((github.event_name == 'pull_request' && github.base_ref) || github.ref_name) == 'main' && '/opt/stacks/prod' || '/opt/stacks/staging' }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+          DB_CONN: ${{ secrets.POSTGRES_CONNECTION }}
+          AZURE_CONN: ${{ secrets.AZURE_STORAGE_CONNECTION }}
+          FB_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          AUTH_KEY: ${{ secrets.AUTH_SECRET_KEY }}
+        with:
+          host: ${{ secrets.VPS_IP }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: TARGET_DIR,GITHUB_TOKEN,GITHUB_ACTOR,REPOSITORY_OWNER,DB_CONN,AZURE_CONN,FB_KEY,AUTH_KEY
+          script: |
+            mkdir -p $TARGET_DIR  
+            cd $TARGET_DIR
+
+            # 1. Determine Port and Tag for the .env file
+            if [ "${{ (github.event_name == 'pull_request' && github.base_ref) || github.ref_name }}" = "main" ]; then
+              echo "TAG=prod" > .env
+              echo "HOST_PORT=8080" >> .env
+            else
+              echo "TAG=staging" > .env
+              echo "HOST_PORT=8081" >> .env
+            fi
+
+            # 2. Extract DB password from connection string for postgres service
+            # Extract password from "Password=xxx" in connection string
+            DB_PASSWORD=$(echo "$DB_CONN" | grep -oP 'Password=\K[^;]+' || echo "admin")
+            echo "POSTGRES_PASSWORD=$DB_PASSWORD" >> .env
+            echo "POSTGRES_USER=admin" >> .env
+
+            # 3. Add C# Secrets (Overrides your appsettings.json placeholders)
+            echo "CONNECTIONSTRINGS__POSTGRES=$DB_CONN" >> .env
+            echo "AZUREBLOBSTORAGE__CONNECTIONSTRING=$AZURE_CONN" >> .env
+            echo "FIREBASECONFIGURATION__APIKEY=$FB_KEY" >> .env
+            echo "AUTHSETTINGS__SECRETKEY=$AUTH_KEY" >> .env
+            echo "REPOSITORY_OWNER=$REPOSITORY_OWNER" >> .env
+
+            # 3. Pull and Run
+            echo $GITHUB_TOKEN | docker login ghcr.io -u $GITHUB_ACTOR --password-stdin
+            docker compose pull
+            docker compose up -d

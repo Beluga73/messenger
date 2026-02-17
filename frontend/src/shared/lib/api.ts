@@ -9,6 +9,7 @@ const request = async <T>(endpoint: string, config: RequestInit = {}): Promise<T
   const headers: HeadersInit = {
     "Content-Type": "application/json",
     ...(jwtToken && { Authorization: `Bearer ${jwtToken}` }),
+    ...(config.headers || {}),
   };
 
   let res = await fetch(url, { ...config, headers });
@@ -33,9 +34,9 @@ const request = async <T>(endpoint: string, config: RequestInit = {}): Promise<T
 export const api = {
   get: <T>(endpoint: string, config?: RequestInit) =>
     request<T>(endpoint, { ...config, method: "GET" }),
-  post: <T>(endpoint: string, body: any, config?: RequestInit) =>
+  post: <T>(endpoint: string, body: unknown, config?: RequestInit) =>
     request<T>(endpoint, { ...config, method: "POST", body: JSON.stringify(body) }),
-  put: <T>(endpoint: string, body: any, config?: RequestInit) =>
+  put: <T>(endpoint: string, body: unknown, config?: RequestInit) =>
     request<T>(endpoint, { ...config, method: "PUT", body: JSON.stringify(body) }),
   delete: <T>(endpoint: string, config?: RequestInit) =>
     request<T>(endpoint, { ...config, method: "DELETE" }),

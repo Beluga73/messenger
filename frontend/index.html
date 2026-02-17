@@ -9,7 +9,7 @@
       (function () {
         try {
           // 1. Manually check the same key Zustand uses
-          const storage = JSON.parse(localStorage.getItem("theme-storage"));
+          const storage = JSON.parse(localStorage.getItem("theme-store"));
           const theme = storage?.state?.theme;
 
           // 2. Check system preference if no saved theme
@@ -19,7 +19,7 @@
             document.documentElement.classList.add("dark");
             document.documentElement.style.colorScheme = "dark";
           }
-        } catch (e) {}
+        } catch {}
       })();
     </script>
   </head>

@@ -25,15 +25,16 @@ export const DesktopMasterLayout = ({ LeftPanel, RightPanel }: MasterLayoutProps
 };
 
 export const MobileMasterLayout = ({ LeftPanel, RightPanel }: MasterLayoutProps) => {
-  const paths = ["/chats", "/settings"]; // for those paths show left panel
   const location = useLocation();
+  const navbarPaths = ["/chats", "/settings", "/calls"];
 
-  const Panel = paths.includes(location.pathname) ? LeftPanel : RightPanel;
+  const showLeftPanel = navbarPaths.includes(location.pathname);
+  const Panel = showLeftPanel ? LeftPanel : RightPanel;
 
   return (
     <div className="flex flex-col w-screen h-screen overflow-hidden">
       <main className="flex-1 min-h-0 overflow-hidden">{Panel}</main>
-      <NavBar navClassName="flex-grow-0 flex-shrink-0" />
+      {showLeftPanel && <NavBar navClassName="flex-grow-0 flex-shrink-0" />}
     </div>
   );
 };

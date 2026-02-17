@@ -14,7 +14,6 @@ export const usePhoneNumberStore = create<VerificationState>((set) => ({
   sessionInfo: "",
   setPhoneNumber: (phoneNumber) => set({ phoneNumber }),
   setSessionInfo: (sessionInfo) => set({ sessionInfo }),
-  setVerificationData: (phoneNumber, sessionInfo) =>
-    set({ phoneNumber, sessionInfo }),
+  setVerificationData: (phoneNumber, sessionInfo) => set({ phoneNumber, sessionInfo }),
   resetVerificationData: () => set({ phoneNumber: "", sessionInfo: "" }),
 }));
