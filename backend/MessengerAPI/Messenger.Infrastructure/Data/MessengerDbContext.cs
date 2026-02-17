@@ -15,6 +15,8 @@ public class MessengerDbContext(DbContextOptions<MessengerDbContext> options ) :
     public DbSet<Group> Groups { get; set; }
     public DbSet<GroupMember> GroupMembers { get; set; }
     public DbSet<GroupMessage> GroupMessages { get; set; }
+    public DbSet<SecretChat> SecretChats { get; set; }
+    public DbSet<SecretMessage> SecretMessages { get; set; }
     
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -28,5 +30,7 @@ public class MessengerDbContext(DbContextOptions<MessengerDbContext> options ) :
         modelBuilder.ApplyConfiguration(new GroupConfiguration());
         modelBuilder.ApplyConfiguration(new GroupMemberConfiguration());
         modelBuilder.ApplyConfiguration(new GroupMessageConfiguration());
+        modelBuilder.ApplyConfiguration(new SecretChatConfiguration());
+        modelBuilder.ApplyConfiguration(new SecretMessageConfiguration());
     }
 }

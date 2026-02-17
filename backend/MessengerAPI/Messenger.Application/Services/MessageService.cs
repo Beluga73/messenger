@@ -9,15 +9,18 @@ public class MessageService : IMessageService
     private readonly IMessageRepository _messageRepository;
     private readonly IConversationRepository _conversationRepository;
     private readonly IUserRepository _userRepository;
+    private readonly IEncryptionService _encryptionService;
 
     public MessageService(
         IMessageRepository messageRepository,
         IConversationRepository conversationRepository,
-        IUserRepository userRepository)
+        IUserRepository userRepository,
+        IEncryptionService encryptionService)
     {
         _messageRepository = messageRepository;
         _conversationRepository = conversationRepository;
         _userRepository = userRepository;
+        _encryptionService = encryptionService;
     }
 
     public async Task<MessageDto> SendMessageAsync(Guid senderId, CreateMessageDto messageDto)
@@ -48,14 +51,19 @@ public class MessageService : IMessageService
             conversation = await _conversationRepository.CreateConversationAsync(conversation);
         }
 
-        // Create message
+        // Encrypt message content using server-side AES-256
+        var (encryptedContent, iv) = _encryptionService.Encrypt(messageDto.Content);
+
+        // Create message with encrypted content
         var message = new Message
         {
             ConversationId = conversation.Id,
             Conversation = conversation,
             SenderId = senderId,
             Sender = sender,
-            Content = messageDto.Content,
+            Content = encryptedContent,
+            IsEncrypted = true,
+            EncryptionIv = iv,
             SentAt = DateTime.UtcNow
         };
 
@@ -69,7 +77,8 @@ public class MessageService : IMessageService
         message = await _messageRepository.GetMessageByIdAsync(message.Id) 
                   ?? throw new Exception("Failed to retrieve created message");
 
-        return new MessageDto(message);
+        // Decrypt for the DTO response
+        return CreateDecryptedMessageDto(message);
     }
 
     public async Task<List<MessageDto>> GetMessagesAsync(Guid conversationId, Guid userId, int skip = 0, int take = 50)
@@ -82,7 +91,7 @@ public class MessageService : IMessageService
             throw new Exception("Unauthorized access to conversation");
 
         var messages = await _messageRepository.GetMessagesByConversationIdAsync(conversationId, skip, take);
-        return messages.Select(m => new MessageDto(m)).Reverse().ToList();
+        return messages.Select(CreateDecryptedMessageDto).Reverse().ToList();
     }
 
     public async Task<List<ConversationDto>> GetConversationsAsync(Guid userId)
@@ -174,6 +183,21 @@ public class MessageService : IMessageService
             throw new Exception("Unauthorized access to conversation");
 
         await _messageRepository.MarkMessagesAsReadAsync(conversationId, userId);
+    }
+
+    /// <summary>
+    /// Creates a MessageDto and transparently decrypts server-side encrypted content
+    /// </summary>
+    private MessageDto CreateDecryptedMessageDto(Message message)
+    {
+        var dto = new MessageDto(message);
+        
+        if (message.IsEncrypted && !string.IsNullOrEmpty(message.EncryptionIv))
+        {
+            dto.Content = _encryptionService.Decrypt(message.Content, message.EncryptionIv);
+        }
+        
+        return dto;
     }
 }
 

@@ -13,6 +13,7 @@
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_HTTP_PORTS=8080
+      - CORS_ORIGINS=http://localhost:5173,http://localhost:3000
 
   postgresdb:
     image: postgres:alpine

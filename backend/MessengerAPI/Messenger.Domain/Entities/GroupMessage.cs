@@ -19,5 +19,15 @@ public class GroupMessage : BaseEntity
     [Required]
     public string Content { get; set; }
     
+    /// <summary>
+    /// Whether this message content is encrypted at rest using server-side AES-256 encryption
+    /// </summary>
+    public bool IsEncrypted { get; set; } = false;
+    
+    /// <summary>
+    /// Initialization vector for server-side AES decryption (Base64-encoded)
+    /// </summary>
+    public string? EncryptionIv { get; set; }
+    
     public DateTime SentAt { get; set; } = DateTime.UtcNow;
 }

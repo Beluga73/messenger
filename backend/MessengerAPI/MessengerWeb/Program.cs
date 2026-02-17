@@ -1,4 +1,5 @@
 using Azure.Storage.Blobs;
+using MessengerWeb;
 using MessengerWeb.Extensions;
 using Messenger.Application;
 using Messenger.Application.Interfaces;
@@ -9,12 +10,11 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var corsOrigins = Environment.GetEnvironmentVariable("CORS_ORIGINS")?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+    ?? ["http://localhost:5173"];
+
 builder.Services.AddCors(options => options.AddDefaultPolicy(policyBuilder => 
-    policyBuilder.SetIsOriginAllowed(origin =>
-    {
-        var uri = new Uri(origin);
-        return uri.Host == "localhost" || uri.Host.EndsWith(".messenger.mbelov-blog.com") || uri.Host == "messenger.mbelov-blog.com";
-    })
+    policyBuilder.WithOrigins(corsOrigins)
         .AllowAnyMethod()
         .AllowAnyHeader()
         .AllowCredentials()));
@@ -25,10 +25,14 @@ builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IConversationRepository, ConversationRepository>();
 builder.Services.AddScoped<IGroupRepository, GroupRepository>();
 builder.Services.AddScoped<IGroupMessageRepository, GroupMessageRepository>();
+builder.Services.AddScoped<ISecretChatRepository, SecretChatRepository>();
 builder.Services.AddScoped<AuthenticationService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
+builder.Services.AddSingleton<IEncryptionService, EncryptionService>();
+builder.Services.AddScoped<ISecretChatService, SecretChatService>();
+builder.Services.AddHostedService<SecretMessageCleanupService>();
 builder.Services.AddHttpClient<PhoneVerificationService>();
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
